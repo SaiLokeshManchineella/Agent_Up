@@ -1,0 +1,21 @@
+# Environment variables — NEVER commit secrets
+.env
+.env.*
+!.env.example
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# PDFs (hiring exercise docs — not part of source)
+*.pdf
