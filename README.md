@@ -44,7 +44,7 @@ sequenceDiagram
     participant Pipe as Voice Pipeline
     participant DG as Deepgram (Acoustic)
     participant GPT as OpenAI (Cognitive)
-    participant TTS as ElevenLabs (Expressive)
+    participant TTS as Cartesia Sonic (Expressive)
 
     Agent->>Pipe: Stream Mic Audio
     Pipe->>DG: PCM Chunk 16kHz
@@ -60,7 +60,7 @@ sequenceDiagram
 - **Speculative Execution Engine**: The system implements an optimistic generation strategy. While the agent is still speaking, the pipeline creates "speculative" completions based on interim transcripts. If the final utterance matches a predicted path, the AI responds **instantly (<100ms)** by skipping the LLM-roundtrip entirely.
 - **Semantic & Prosodic Turn Detection**: Beyond simple silence-timers, the platform analyzes word-level confidence and linguistic "completeness" (via Deepgram's native acoustic model) to determine exactly when a user has finished their thought, drastically reducing accidental interruptions.
 - **Acoustic Endpointing**: Uses Deepgram's native acoustic model to detect the *actual* end of a human sentence, avoiding the awkward delays of simple silence-timers.
-- **Emotional Prosody**: Integrated with ElevenLabs and Cartesia to maintain emotional consistency throughout the training scenario.
+- **Emotional Prosody**: Integrated with **Cartesia Sonic-2** to maintain consistent emotional tone and ultra-low latency (~130ms) speech generation.
 - **Real-time Waveform Engine**: Optimized frequency-domain visualization (11 bars, 60fps) provides immediate feedback to the user, ensuring they are aware of their input levels.
 - **Zero-Latency Buffering**: Implements a streaming buffer strategy where audio starts playing the moment the first sentence is synthesized, even while the rest of the response is still being generated.
 
@@ -71,6 +71,7 @@ sequenceDiagram
 The platform was built with "Production-First" principles to ensure stability during high-stakes training sessions.
 
 - **Automatic LLM Failover**: The scoring engine includes a "Hot-Swap" logic. if the primary GPT-4o model hits a rate-limit or downtime, the system automatically fails over to **GPT-4o-mini** to ensure scoring is never interrupted.
+- **Multi-Cloud TTS Fallback**: The voice pipeline prioritizes **Cartesia Sonic** for speed, but automatically fails over to **OpenAI TTS (Onyx)** and finally **Browser SpeechSynthesis** to guarantee a voice response in any network condition.
 - **Backpressure Filler Injection**: To eliminate awkward conversational silences during high-latency periods, the pipeline dynamically injects humanized "thinkers" (e.g., "Mmhmm," "Let me see...") based on real-time backpressure monitoring.
 - **Acoustic Audio Monitoring**: The system monitors the agent's audio for **Signal-to-Noise Ratio (SNR)** and **Clipping**. It provides real-time warnings if the agent's microphone is too loud or the background is too noisy for accurate STT.
 - **7-State FSM Control**: The pipeline is managed by a strict Finite State Machine to prevent async race conditions (e.g., prevents the AI from talking while the user is still being processed).
@@ -86,6 +87,11 @@ The platform features a sophisticated hybrid storage engine built with **Drizzle
 - ☁️ **Production**: **Vercel Postgres** for global scale and persistence.
 - 📦 **Docker Support**: Built-in `docker-compose` for local Postgres parity testing.
 
+### 2. Modern AI Stack
+- **Deepgram**: Real-time STT with acoustic endpointing.
+- **OpenAI**: GPT-4o powered conversational intelligence and fallback TTS.
+- **Cartesia**: Sub-150ms Sonic-2 TTS for natural, expressive interaction.
+- **Waveform Visualization**: Real-time frequency-domain visualization for immersive UX.
 
 ### 3. Hardened Diagnostic Engine
 The simulation logic is built with a turn-based "Zero-Gap" guard:
