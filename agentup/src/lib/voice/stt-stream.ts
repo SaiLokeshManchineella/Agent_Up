@@ -8,6 +8,7 @@ export interface STTCallbacks {
   onInterim: (text: string) => void;
   onFinal: (text: string) => void;
   onSpeechFinal: () => void; // Deepgram VAD endpoint — high-confidence turn end
+  onWordData: (words: { word: string; start: number; end: number; confidence: number }[]) => void;
   onError: (error: string) => void;
 }
 
@@ -99,6 +100,12 @@ export class DeepgramSTTStream {
             if (!transcript) return;
 
             if (data.is_final) {
+              // Extract word-level data for prosodic telemetry
+              const words = data.channel.alternatives[0].words || [];
+              if (words.length > 0) {
+                this.callbacks?.onWordData?.(words);
+              }
+
               // Check speech_final flag from endpointing
               if (data.speech_final) {
                 this.callbacks?.onFinal?.(transcript);

@@ -192,30 +192,17 @@ export class VoicePipeline {
     }
     this.deepgramApiKey = apiKey;
 
-    const useProxy = temporary === false;
-    this.activeSttStream = useProxy ? this.proxySttStream : this.sttStream;
-
-    // Connect to Deepgram STT
-    if (useProxy) {
-      await this.proxySttStream.connect({
-        onInterim: (text) => this.handleInterim(text),
-        onFinal: (text) => this.handleFinal(text),
-        onSpeechFinal: () => this.handleSpeechFinal(),
-        onWordData: (words) => this.updateWordData(words),
-        onError: (error) => this.handleSTTError(error),
-        // Titan Advanced STT: Context-aware prompting
-        prompt: scenario.slice(0, 500), 
-      });
-    } else {
-      await this.sttStream.connect(this.deepgramApiKey!, {
-        onInterim: (text) => this.handleInterim(text),
-        onFinal: (text) => this.handleFinal(text),
-        onSpeechFinal: () => this.handleSpeechFinal(),
-        onError: (error) => this.handleSTTError(error),
-        // Titan Advanced STT: Context-aware prompting
-        prompt: scenario.slice(0, 500),
-      });
-    }
+    // Connect to Deepgram STT (Directly from client for production reliability)
+    this.activeSttStream = this.sttStream;
+    await this.sttStream.connect(this.deepgramApiKey!, {
+      onInterim: (text) => this.handleInterim(text),
+      onFinal: (text) => this.handleFinal(text),
+      onSpeechFinal: () => this.handleSpeechFinal(),
+      onWordData: (words) => this.updateWordData(words),
+      onError: (error) => this.handleSTTError(error),
+      // Titan Advanced STT: Context-aware prompting
+      prompt: scenario.slice(0, 500),
+    });
 
     // Start audio capture
     await this.audioCapture.start((chunk) => {
