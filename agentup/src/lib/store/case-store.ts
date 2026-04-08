@@ -7,38 +7,58 @@ interface CaseFilters {
   difficulty: string;
 }
 
-interface CaseStore {
+export interface CaseStore {
   cases: Case[];
-  filters: CaseFilters;
   isLoading: boolean;
+  
+  // Filters
+  searchQuery: string;
+  selectedTopic: string | null;
+  selectedChannel: string | null;
 
+  // Actions
   setCases: (cases: Case[]) => void;
   addCase: (c: Case) => void;
-  setFilter: (key: keyof CaseFilters, value: string) => void;
-  resetFilters: () => void;
   setLoading: (loading: boolean) => void;
+  setSearchQuery: (query: string) => void;
+  setSelectedTopic: (topic: string | null) => void;
+  setSelectedChannel: (channel: string | null) => void;
   filteredCases: () => Case[];
 }
 
 export const useCaseStore = create<CaseStore>((set, get) => ({
   cases: [],
-  filters: { topic: 'all', channel: 'all', difficulty: 'all' },
   isLoading: false,
+  searchQuery: '',
+  selectedTopic: null,
+  selectedChannel: null,
 
   setCases: (cases) => set({ cases }),
   addCase: (c) => set((state) => ({ cases: [...state.cases, c] })),
-  setFilter: (key, value) =>
-    set((state) => ({ filters: { ...state.filters, [key]: value } })),
-  resetFilters: () =>
-    set({ filters: { topic: 'all', channel: 'all', difficulty: 'all' } }),
   setLoading: (loading) => set({ isLoading: loading }),
+  setSearchQuery: (searchQuery) => set({ searchQuery }),
+  setSelectedTopic: (selectedTopic) => set({ selectedTopic }),
+  setSelectedChannel: (selectedChannel) => set({ selectedChannel }),
 
   filteredCases: () => {
-    const { cases, filters } = get();
+    const { cases, searchQuery, selectedTopic, selectedChannel } = get();
     return cases.filter((c) => {
-      if (filters.topic !== 'all' && c.topic !== filters.topic) return false;
-      if (filters.channel !== 'all' && c.channel !== filters.channel) return false;
-      if (filters.difficulty !== 'all' && c.difficulty !== filters.difficulty) return false;
+      // Filter by search query
+      if (searchQuery) {
+        const search = searchQuery.toLowerCase();
+        const matchesSearch = 
+          c.title.toLowerCase().includes(search) || 
+          c.scenario.toLowerCase().includes(search) ||
+          c.topic.toLowerCase().includes(search);
+        if (!matchesSearch) return false;
+      }
+
+      // Filter by topic
+      if (selectedTopic && c.topic !== selectedTopic) return false;
+
+      // Filter by channel
+      if (selectedChannel && c.channel !== selectedChannel && c.channel !== 'both') return false;
+
       return true;
     });
   },
