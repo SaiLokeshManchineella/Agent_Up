@@ -57,6 +57,8 @@ sequenceDiagram
 ```
 
 ### Key Technical Features:
+- **Speculative Execution Engine**: The system implements an optimistic generation strategy. While the agent is still speaking, the pipeline creates "speculative" completions based on interim transcripts. If the final utterance matches a predicted path, the AI responds **instantly (<100ms)** by skipping the LLM-roundtrip entirely.
+- **Semantic & Prosodic Turn Detection**: Beyond simple silence-timers, the platform analyzes word-level confidence and linguistic "completeness" (via Deepgram's native acoustic model) to determine exactly when a user has finished their thought, drastically reducing accidental interruptions.
 - **Acoustic Endpointing**: Uses Deepgram's native acoustic model to detect the *actual* end of a human sentence, avoiding the awkward delays of simple silence-timers.
 - **Emotional Prosody**: Integrated with ElevenLabs and Cartesia to maintain emotional consistency throughout the training scenario.
 - **Real-time Waveform Engine**: Optimized frequency-domain visualization (11 bars, 60fps) provides immediate feedback to the user, ensuring they are aware of their input levels.
