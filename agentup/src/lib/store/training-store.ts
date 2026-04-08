@@ -167,11 +167,30 @@ export const useTrainingStore = create<TrainingStore>((set, get) => ({
       return { chosenChannels: channels };
     }),
 
-  terminateSession: () => set({ 
-    phase: 'scoring', 
-    wasTerminated: true,
-    isLoading: false 
-  }),
+  terminateSession: async () => {
+    const state = get();
+    // Add a dummy zero score for the current case if not already scored
+    const zeroScore: ScoreResult = {
+      totalScore: 0,
+      empathy: { score: 0, note: 'Session terminated before baseline.' },
+      accuracy: { score: 0, note: 'Session terminated before baseline.' },
+      resolution: { score: 0, note: 'Session terminated before baseline.' },
+      professionalism: { score: 0, note: 'Session terminated before baseline.' },
+      tip: 'Conversations must reach 5 turns for mastery assessment.',
+      strength: 'N/A',
+      improvement: 'Incomplete session persistence.'
+    };
+    
+    set((state) => ({ 
+      scores: [...state.scores, zeroScore],
+      phase: 'scoring', 
+      wasTerminated: true,
+      isLoading: false 
+    }));
+
+    // Auto-commit the session with the zero score
+    await get().completeSession();
+  },
 
   reset: () =>
     set({
