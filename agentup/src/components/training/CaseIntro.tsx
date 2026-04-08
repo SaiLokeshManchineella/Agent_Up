@@ -18,7 +18,7 @@ export function CaseIntro({ caseData, caseNumber, totalCases }: CaseIntroProps) 
   const { setPhase, setChosenChannel } = useTrainingStore();
 
   const handleStart = (channel: 'chat' | 'call') => {
-    setChosenChannel(caseNumber - 1, channel);
+    setChosenChannel(channel, caseNumber - 1);
     setPhase('simulation');
   };
 
