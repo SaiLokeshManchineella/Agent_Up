@@ -153,14 +153,3 @@ npm run dev
 2. Connect the project in the Vercel Dashboard.
 3. Add the **Vercel Postgres** Storage add-on.
 4. Add your API keys to the Environment Variables.
-
----
-
-### 🎓 Hiring Exercise Notes
-This project was meticulously hardened to ensure 100% stability. Key improvements made during the exercise:
-- Fixed a concurrency bug in the simulation scoring logic.
-- Implemented real-time waveform visualization for the voice channel.
-- Migrated the entire database layer to a production-grade Postgres architecture.
-- Hardened the "5-Turn" simulation limit to ensure deterministic evaluations.
-
-**Developed with ❤️ for the IAG AI Full Stack Engineer hiring exercise.**
