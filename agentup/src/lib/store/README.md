@@ -39,7 +39,7 @@ Manages the entire training session lifecycle.
 | `incrementTurn()` | Increment agent turn counter |
 | `addScore(score)` | Store score result for current case |
 | `nextCase()` | Move to next case (increments index, resets turn, sets phase=intro) |
-| `setChannelForCurrentCase(ch)` | Set user's channel choice for "both" cases |
+| `setChosenChannel(ch, idx?)` | Set user's channel choice for a case |
 | `setError(error)` | Set error message (null to clear) |
 | `reset()` | Reset everything back to idle |
 

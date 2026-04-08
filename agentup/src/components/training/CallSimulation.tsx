@@ -12,6 +12,7 @@ export function CallSimulation({ caseData }: CallSimulationProps) {
   const {
     maxTurns,
     addMessage,
+    setConversation,
     setPhase,
     addScore,
     setLoading,
@@ -20,10 +21,8 @@ export function CallSimulation({ caseData }: CallSimulationProps) {
   } = useTrainingStore();
 
   const handleCallEnd = async (conversation: ConversationMessage[]) => {
-    // Add all messages to store
-    for (const msg of conversation) {
-      addMessage(msg);
-    }
+    // Set final conversation history in store
+    setConversation(currentCaseIndex, conversation);
 
     // Score the conversation
     setLoading(true);
