@@ -112,7 +112,7 @@ The simulation logic is built with a turn-based "Zero-Gap" guard:
 - **State Management**: Zustand (Global Store), React Context (Real-time Pipeline).
 - **Backend**: Next.js API Routes, Drizzle ORM.
 - **Database**: Vercel Postgres / SQLite.
-- **AI Services**: OpenAI, Deepgram, ElevenLabs.
+- **AI Services**: OpenAI, Deepgram, Cartesia.
 
 ---
 
