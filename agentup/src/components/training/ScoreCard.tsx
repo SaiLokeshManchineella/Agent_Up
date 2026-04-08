@@ -49,12 +49,12 @@ export function ScoreCard({ score, onContinue }: ScoreCardProps) {
     );
   };
 
-  // Map the internal 0-25 per-dimension scores to 0-100 percentage for the UI
+  // Use the raw 0-25 per-dimension scores as marks for the UI
   const dimensions = [
-    { label: 'Empathy', value: score.empathy.score * 4, note: score.empathy.note },
-    { label: 'Accuracy', value: score.accuracy.score * 4, note: score.accuracy.note },
-    { label: 'Resolution', value: score.resolution.score * 4, note: score.resolution.note },
-    { label: 'Professionalism', value: score.professionalism.score * 4, note: score.professionalism.note },
+    { label: 'Empathy', value: score.empathy.score, note: score.empathy.note },
+    { label: 'Accuracy', value: score.accuracy.score, note: score.accuracy.note },
+    { label: 'Resolution', value: score.resolution.score, note: score.resolution.note },
+    { label: 'Professionalism', value: score.professionalism.score, note: score.professionalism.note },
   ];
 
   const strengths = score.strength ? score.strength.split(/[.!?]+ /).filter(s => s.trim().length > 0) : [];
@@ -70,8 +70,8 @@ export function ScoreCard({ score, onContinue }: ScoreCardProps) {
         </div>
         <h1 className="text-4xl font-bold tracking-tight text-foreground">Scenario Mastery Analysis</h1>
         <p className="text-muted-foreground font-medium max-w-xl mx-auto leading-relaxed">
-          Our behavioral models have cross-referenced your interaction against enterprise mastery standards. 
-          Summary telemetry provided below.
+          Our behavioral models have cross-referenced your interaction against enterprise mastery standards (25 marks per dimension). 
+          Aggregate telemetry provided below.
         </p>
       </div>
 
@@ -100,8 +100,8 @@ export function ScoreCard({ score, onContinue }: ScoreCardProps) {
 
             <div className="mt-12 w-full pt-8 border-t border-border/40 grid grid-cols-2 gap-4">
                <div className="text-center">
-                  <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Pass Rate</div>
-                  <div className="text-lg font-bold text-foreground">80%</div>
+                  <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Pass Mark</div>
+                  <div className="text-lg font-bold text-foreground">80 / 100</div>
                </div>
                <div className="text-center">
                   <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Consistency</div>
@@ -129,6 +129,7 @@ export function ScoreCard({ score, onContinue }: ScoreCardProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
              {dimensions.map((dim, idx) => {
                 const isExpanded = expandedIndices.includes(idx);
+                const percentage = (dim.value / 25) * 100;
                 return (
                   <motion.div 
                      key={dim.label}
@@ -139,15 +140,18 @@ export function ScoreCard({ score, onContinue }: ScoreCardProps) {
                      <Card className="border-border/60 bg-white shadow-sm p-6 rounded-2xl group hover:border-primary/30 transition-all">
                         <div className="flex justify-between items-center mb-4">
                            <span className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{dim.label}</span>
-                           <span className="text-sm font-black text-foreground">{dim.value}%</span>
+                           <div className="flex items-baseline gap-1">
+                              <span className="text-base font-black text-foreground">{dim.value}</span>
+                              <span className="text-[10px] font-bold text-muted-foreground/40 uppercase">/ 25</span>
+                           </div>
                         </div>
                         <div className="h-2 w-full bg-muted rounded-full overflow-hidden mb-4 border border-border/20">
                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${dim.value}%` }}
-                              transition={{ duration: 1.5, delay: 0.8 }}
-                              className={`h-full ${dim.value >= 75 ? 'bg-primary' : 'bg-muted-foreground/40'}`}
-                           />
+                               initial={{ width: 0 }}
+                               animate={{ width: `${percentage}%` }}
+                               transition={{ duration: 1.5, delay: 0.8 }}
+                               className={`h-full ${percentage >= 75 ? 'bg-primary' : 'bg-muted-foreground/40'}`}
+                            />
                         </div>
                         
                         <div className="relative">
