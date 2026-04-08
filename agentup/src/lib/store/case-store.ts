@@ -42,6 +42,10 @@ export const useCaseStore = create<CaseStore>((set, get) => ({
 
   filteredCases: () => {
     const { cases, searchQuery, selectedTopic, selectedChannel } = get();
+    
+    // Safety guard: prevent crash if state was corrupted
+    if (!Array.isArray(cases)) return [];
+
     return cases.filter((c) => {
       // Filter by search query
       if (searchQuery) {

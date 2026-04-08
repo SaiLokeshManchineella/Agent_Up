@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+import { db, ensureDbReady } from '@/lib/db';
 import { cases } from '@/lib/db/schema';
 import { seedDefaultCases } from '@/lib/db/seed';
 import { v4 as uuid } from 'uuid';
@@ -13,7 +13,8 @@ const MAX_TOPIC_LENGTH = 100;
 
 export async function GET() {
   try {
-    // Seed defaults on first access
+    // Ensure DB schema exists and seed defaults on first access
+    await ensureDbReady();
     await seedDefaultCases();
 
     // Standard await works for both Postgres and SQLite in Drizzle
@@ -28,6 +29,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    await ensureDbReady();
     const body = await request.json();
 
     // ... (Validation logic stays same)

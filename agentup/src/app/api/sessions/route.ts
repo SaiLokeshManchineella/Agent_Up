@@ -1,10 +1,11 @@
-import { db } from '@/lib/db';
+import { db, ensureDbReady } from '@/lib/db';
 import { sessions, sessionCases, cases } from '@/lib/db/schema';
 import { v4 as uuid } from 'uuid';
 import { eq, desc, sql, gte } from 'drizzle-orm';
 
 export async function GET(request: Request) {
   try {
+    await ensureDbReady();
     const url = new URL(request.url);
     const type = url.searchParams.get('type');
 
@@ -152,6 +153,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    await ensureDbReady();
     const body = await request.json();
 
     // Input validation

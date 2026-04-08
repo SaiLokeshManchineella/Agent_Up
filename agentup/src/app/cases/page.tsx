@@ -19,8 +19,16 @@ export default function MyCasesPage() {
       setLoading(true);
       try {
         const res = await fetch('/api/cases');
-        const data: Case[] = await res.json();
-        setCases(data);
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setCases(data);
+        } else {
+          console.error('API Error:', data);
+          setCases([]);
+        }
+      } catch (err) {
+        console.error('Fetch Error:', err);
+        setCases([]);
       } finally {
         setLoading(false);
       }

@@ -6,14 +6,14 @@ import { eq } from 'drizzle-orm';
 
 export async function seedDefaultCases() {
   // Check if default cases already exist
-  const existing = db.select().from(cases).where(eq(cases.isDefault, true)).all();
+  const existing = await db.select().from(cases).where(eq(cases.isDefault, true));
 
   if (existing.length > 0) return;
 
   const now = new Date().toISOString();
 
   for (const c of defaultCases) {
-    db.insert(cases)
+    await db.insert(cases)
       .values({
         id: uuid(),
         title: c.title,
@@ -24,7 +24,6 @@ export async function seedDefaultCases() {
         difficulty: c.difficulty,
         isDefault: true,
         createdAt: now,
-      })
-      .run();
+      });
   }
 }

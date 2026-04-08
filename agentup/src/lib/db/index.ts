@@ -9,6 +9,12 @@ export const SCHEMA_VERSION = 2;
 export const isPostgres = !!process.env.POSTGRES_URL;
 
 let _db: any = null;
+let _initPromise: Promise<void> | null = null;
+
+export async function ensureDbReady() {
+  getDb(); // Ensure _db is created
+  if (_initPromise) await _initPromise;
+}
 
 export function getDb() {
   if (_db) return _db;
@@ -19,7 +25,7 @@ export function getDb() {
     console.log('📦 Database: Connected to Vercel Postgres');
     
     // Postgres table initialization (handled via internal 'sql' execution)
-    initializePostgres();
+    _initPromise = initializePostgres();
   } else {
     // Local SQLite Driver
     const dbPath = path.join(process.cwd(), 'agentup.db');
@@ -35,7 +41,8 @@ export function getDb() {
   return _db;
 }
 
-async function initializePostgres() {
+export async function initializePostgres() {
+  if (!isPostgres) return;
   try {
     // Simple table creation for Postgres
     await sql.query(`
