@@ -15,6 +15,7 @@
 
 import { AudioCapture } from './audio-capture';
 import { DeepgramSTTStream } from './stt-stream';
+import { ProxySTTStream } from './stt-proxy-stream';
 import { TTSStream } from './tts-stream';
 import { SentenceDetector } from './sentence-detector';
 import { LatencyTracker } from './latency-tracker';
@@ -41,6 +42,8 @@ export interface PipelineCallbacks {
 export class VoicePipeline {
   private audioCapture: AudioCapture;
   private sttStream: DeepgramSTTStream;
+  private proxySttStream: ProxySTTStream;
+  private activeSttStream: DeepgramSTTStream | ProxySTTStream | null = null;
   private ttsStream: TTSStream;
   private latencyTracker: LatencyTracker;
   private audioQuality: AudioQualityMonitor;
@@ -52,6 +55,7 @@ export class VoicePipeline {
   private deepgramApiKey: string | null = null;
   private scenario = '';
   private difficulty = '';
+  private maxTurns = 5;
   private conversationHistory: { role: string; content: string }[] = [];
 
   // VAD state
@@ -93,6 +97,7 @@ export class VoicePipeline {
     this.callbacks = callbacks;
     this.audioCapture = new AudioCapture();
     this.sttStream = new DeepgramSTTStream();
+    this.proxySttStream = new ProxySTTStream();
     this.ttsStream = new TTSStream();
     this.latencyTracker = new LatencyTracker();
     this.audioQuality = new AudioQualityMonitor();
@@ -161,9 +166,10 @@ export class VoicePipeline {
     });
   }
 
-  async start(scenario: string, difficulty: string): Promise<void> {
+  async start(scenario: string, difficulty: string, maxTurns: number = 5): Promise<void> {
     this.scenario = scenario;
     this.difficulty = difficulty;
+    this.maxTurns = maxTurns;
     this.conversationHistory = [];
     this.stopped = false;
 
@@ -178,7 +184,7 @@ export class VoicePipeline {
       this.sessionLogger.error(err.error || 'Deepgram key fetch failed');
       return;
     }
-    const { apiKey, error } = await res.json();
+    const { apiKey, error, temporary } = await res.json();
     if (!apiKey) {
       this.callbacks.onError(error || 'Deepgram API key not configured');
       this.sessionLogger.error(error || 'No Deepgram key');
@@ -186,89 +192,30 @@ export class VoicePipeline {
     }
     this.deepgramApiKey = apiKey;
 
+    const useProxy = temporary === false;
+    this.activeSttStream = useProxy ? this.proxySttStream : this.sttStream;
+
     // Connect to Deepgram STT
-    await this.sttStream.connect(this.deepgramApiKey!, {
-      onInterim: (text) => {
-        // STT-based barge-in: if we receive transcripts while speaking, user is talking over AI
-        if (this.state === 'speaking' && !this.muteSTT) {
-          this.sttReceivedDuringSpeaking = true;
-          this.handleBargeIn();
-          return;
-        }
-
-        if (this.muteSTT || this.stopped || this.isProcessingTurn) return;
-
-        this.currentInterim = text;
-        const display = this.accumulatedTranscript
-          ? this.accumulatedTranscript + ' ' + text
-          : text;
-        this.callbacks.onInterimTranscript(display);
-        this.sessionLogger.transcript(display, false);
-
-        this.resetSilenceTimer();
-
-        if (!this.isSpeaking) {
-          this.isSpeaking = true;
-          this.setState('listening');
-        }
-
-        if (display.split(/\s+/).length >= VOICE_CONFIG.SPECULATION_MIN_WORDS && this.state === 'listening') {
-          this.setState('speculating');
-        }
-        this.speculativeEngine.onPartialTranscript(
-          display,
-          this.scenario,
-          this.difficulty,
-          this.conversationHistory
-        );
-      },
-      onFinal: (text) => {
-        // STT-based barge-in check
-        if (this.state === 'speaking' && !this.muteSTT) {
-          this.sttReceivedDuringSpeaking = true;
-          this.handleBargeIn();
-          return;
-        }
-
-        if (this.muteSTT || this.stopped || this.isProcessingTurn) return;
-
-        if (text.trim()) {
-          this.accumulatedTranscript = this.accumulatedTranscript
-            ? this.accumulatedTranscript + ' ' + text.trim()
-            : text.trim();
-          this.currentInterim = '';
-          this.callbacks.onInterimTranscript(this.accumulatedTranscript);
-          this.latencyTracker.mark('stt_final');
-          this.sessionLogger.transcript(this.accumulatedTranscript, true, this.lastWordConfidence);
-        }
-      },
-      onSpeechFinal: () => {
-        if (this.muteSTT || this.stopped || this.isProcessingTurn) return;
-        this.deepgramSpeechFinal = true;
-        this.sessionLogger.log('speech_final');
-
-        if (this.accumulatedTranscript.trim()) {
-          if (this.silenceTimer) clearTimeout(this.silenceTimer);
-          this.silenceTimer = setTimeout(() => {
-            if (!this.isSpeaking || this.isProcessingTurn || this.muteSTT || this.stopped) return;
-
-            const finalTranscript = this.accumulatedTranscript.trim();
-            if (!finalTranscript) return;
-
-            this.isSpeaking = false;
-            this.latencyTracker.mark('speech_end');
-            this.callbacks.onFinalTranscript(finalTranscript);
-            this.handleTurnEnd(finalTranscript);
-          }, VOICE_CONFIG.SPEECH_FINAL_SILENCE_MS);
-        }
-      },
-      onError: (error) => {
-        if (!this.stopped) {
-          this.callbacks.onError(error);
-          this.sessionLogger.error(error, 'stt');
-        }
-      },
-    });
+    if (useProxy) {
+      await this.proxySttStream.connect({
+        onInterim: (text) => this.handleInterim(text),
+        onFinal: (text) => this.handleFinal(text),
+        onSpeechFinal: () => this.handleSpeechFinal(),
+        onWordData: (words) => this.updateWordData(words),
+        onError: (error) => this.handleSTTError(error),
+        // Titan Advanced STT: Context-aware prompting
+        prompt: scenario.slice(0, 500), 
+      });
+    } else {
+      await this.sttStream.connect(this.deepgramApiKey!, {
+        onInterim: (text) => this.handleInterim(text),
+        onFinal: (text) => this.handleFinal(text),
+        onSpeechFinal: () => this.handleSpeechFinal(),
+        onError: (error) => this.handleSTTError(error),
+        // Titan Advanced STT: Context-aware prompting
+        prompt: scenario.slice(0, 500),
+      });
+    }
 
     // Start audio capture
     await this.audioCapture.start((chunk) => {
@@ -279,7 +226,9 @@ export class VoicePipeline {
 
       if (this.muteSTT) return;
 
-      this.sttStream.sendAudio(chunk);
+      if (this.activeSttStream) {
+        this.activeSttStream.sendAudio(chunk);
+      }
 
       // Energy-based barge-in (fallback — STT-based is primary)
       const energy = this.calculateEnergy(chunk);
@@ -288,59 +237,96 @@ export class VoicePipeline {
       }
     });
 
-    // Audio level monitoring for visualizer
-    this.audioLevelInterval = setInterval(() => {
-      if (!this.stopped) {
-        const level = this.audioCapture.getAudioLevel();
-        this.callbacks.onAudioLevel(level);
-      }
-    }, VOICE_CONFIG.AUDIO_LEVEL_POLL_MS);
-
     this.setState('idle');
   }
 
-  private resetSilenceTimer(): void {
-    if (this.silenceTimer) {
-      clearTimeout(this.silenceTimer);
+  private handleInterim(text: string): void {
+    // STT-based barge-in: if we receive transcripts while speaking, user is talking over AI
+    if (this.state === 'speaking' && !this.muteSTT) {
+      this.sttReceivedDuringSpeaking = true;
+      this.handleBargeIn();
+      return;
     }
 
-    const transcript =
-      this.accumulatedTranscript +
-      (this.currentInterim ? ' ' + this.currentInterim : '');
-    const { silenceThresholdMs } = this.turnDetector.analyze(transcript);
+    if (this.muteSTT || this.stopped || this.isProcessingTurn) return;
 
-    // Prosodic adjustment: if last word had low confidence, extend threshold
-    // (uncertain STT → user might still be speaking)
-    const prosodicBonus = this.lastWordConfidence > 0 && this.lastWordConfidence < 0.7 ? 200 : 0;
+    this.currentInterim = text;
+    const display = this.accumulatedTranscript
+      ? this.accumulatedTranscript + ' ' + text
+      : text;
+    this.callbacks.onInterimTranscript(display);
+    this.sessionLogger.transcript(display, false);
 
-    // If Deepgram speech_final, use short threshold
-    const effectiveThreshold = this.deepgramSpeechFinal
-      ? Math.min(silenceThresholdMs, VOICE_CONFIG.SPEECH_FINAL_SILENCE_MS + 50)
-      : silenceThresholdMs + prosodicBonus;
+    if (!this.isSpeaking) {
+      this.isSpeaking = true;
+      this.setState('listening');
+    }
 
-    this.silenceTimer = setTimeout(() => {
-      if (!this.isSpeaking || this.isProcessingTurn || this.muteSTT || this.stopped) return;
-
-      const finalTranscript = this.accumulatedTranscript.trim();
-      if (!finalTranscript) return;
-
-      this.setState('turn_deciding');
-      const { decision } = this.turnDetector.analyze(finalTranscript);
-
-      if (decision === 'thinking' && !this.deepgramSpeechFinal) {
-        this.setState('listening');
-        return;
-      }
-
-      this.isSpeaking = false;
-      this.latencyTracker.mark('speech_end');
-      this.callbacks.onFinalTranscript(finalTranscript);
-      this.handleTurnEnd(finalTranscript);
-    }, effectiveThreshold);
+    if (
+      display.split(/\s+/).length >= VOICE_CONFIG.SPECULATION_MIN_WORDS &&
+      this.state === 'listening'
+    ) {
+      this.setState('speculating');
+    }
+    this.speculativeEngine.onPartialTranscript(
+      display,
+      this.scenario,
+      this.difficulty,
+      this.conversationHistory
+    );
   }
 
-  // Receive word-level data from Deepgram (for prosodic analysis)
-  updateWordData(words: { word: string; start: number; end: number; confidence: number }[]): void {
+  private handleFinal(text: string): void {
+    // STT-based barge-in check
+    if (this.state === 'speaking' && !this.muteSTT) {
+      this.sttReceivedDuringSpeaking = true;
+      this.handleBargeIn();
+      return;
+    }
+
+    if (this.muteSTT || this.stopped || this.isProcessingTurn) return;
+
+    if (text.trim()) {
+      this.accumulatedTranscript = this.accumulatedTranscript
+        ? this.accumulatedTranscript + ' ' + text.trim()
+        : text.trim();
+      this.currentInterim = '';
+      this.callbacks.onInterimTranscript(this.accumulatedTranscript);
+      this.latencyTracker.mark('stt_final');
+      this.sessionLogger.transcript(
+        this.accumulatedTranscript,
+        true,
+        this.lastWordConfidence
+      );
+    }
+  }
+
+  private handleSpeechFinal(): void {
+    if (this.muteSTT || this.stopped || this.isProcessingTurn) return;
+    this.deepgramSpeechFinal = true;
+    this.sessionLogger.log('speech_final');
+
+    const finalTranscript = this.accumulatedTranscript.trim();
+    if (!finalTranscript) return;
+
+    // Expert change: Rely entirely on UtteranceEnd (SpeechFinal) to endpoint the turn
+    // No more manual silence timers in resetSilenceTimer
+    this.isSpeaking = false;
+    this.latencyTracker.mark('speech_end');
+    this.callbacks.onFinalTranscript(finalTranscript);
+    this.handleTurnEnd(finalTranscript);
+  }
+
+  private handleSTTError(error: string): void {
+    if (!this.stopped) {
+      this.callbacks.onError(error);
+      this.sessionLogger.error(error, 'stt');
+    }
+  }
+
+  private updateWordData(
+    words: { word: string; start: number; end: number; confidence: number }[]
+  ): void {
     if (words.length === 0) return;
 
     const lastWord = words[words.length - 1];
@@ -354,7 +340,7 @@ export class VoicePipeline {
   }
 
   private async handleTurnEnd(transcript: string): Promise<void> {
-    if (this.isProcessingTurn || this.stopped) return;
+    if (this.isProcessingTurn || this.stopped || this.turnCount >= this.maxTurns) return;
     this.isProcessingTurn = true;
     this.deepgramSpeechFinal = false;
 
@@ -580,6 +566,8 @@ export class VoicePipeline {
 
     this.audioCapture.stop();
     this.sttStream.disconnect();
+    this.proxySttStream.disconnect();
+    this.activeSttStream = null;
     this.ttsStream.stopPlayback();
     this.speculativeEngine.destroy();
     this.backpressure.destroy();
