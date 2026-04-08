@@ -2,6 +2,8 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { MessageSquare, Phone, MessagesSquare, CheckCircle2, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import type { Case } from '@/types';
 
 interface CaseCardProps {
@@ -9,46 +11,65 @@ interface CaseCardProps {
 }
 
 const difficultyColors = {
-  Beginner: 'bg-green-100 text-green-800',
-  Intermediate: 'bg-yellow-100 text-yellow-800',
-  Advanced: 'bg-red-100 text-red-800',
+  Beginner: 'text-emerald-700 bg-emerald-50 border-emerald-100',
+  Intermediate: 'text-amber-700 bg-amber-50 border-amber-100',
+  Advanced: 'text-rose-700 bg-rose-50 border-rose-100',
 };
 
 const channelIcons = {
-  chat: '💬',
-  call: '📞',
-  both: '💬📞',
+  chat: <MessageSquare className="w-4 h-4" />,
+  call: <Phone className="w-4 h-4" />,
+  both: <MessagesSquare className="w-4 h-4" />,
 };
 
 export function CaseCard({ caseData }: CaseCardProps) {
   return (
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="text-sm font-semibold text-gray-900 leading-tight">
-            {caseData.title}
-          </h3>
-          <span className="text-lg ml-2">{channelIcons[caseData.channel]}</span>
-        </div>
+    <motion.div
+      whileHover={{ y: -2 }}
+      transition={{ duration: 0.2 }}
+      className="h-full"
+    >
+      <Card className="group h-full flex flex-col border-border/60 bg-card shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-border transition-all rounded-xl overflow-hidden cursor-pointer">
+        <CardContent className="p-6 flex flex-col h-full">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg bg-muted text-muted-foreground/80 border border-border/50 group-hover:text-primary transition-colors">
+                {channelIcons[caseData.channel]}
+              </div>
+              <Badge variant="outline" className="text-[10px] px-2 py-0.5 font-bold uppercase tracking-wider bg-transparent border-border/60 text-muted-foreground">
+                {caseData.topic}
+              </Badge>
+            </div>
+            {caseData.isDefault && (
+              <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50/50 px-2 py-1 rounded-full border border-emerald-100">
+                <CheckCircle2 className="w-3 h-3" />
+                Vetted
+              </div>
+            )}
+          </div>
 
-        <p className="text-xs text-gray-500 line-clamp-2 mb-3">
-          {caseData.scenario}
-        </p>
+          <div className="flex-1">
+            <h3 className="text-base font-bold text-foreground leading-snug mb-2 group-hover:text-primary transition-colors">
+              {caseData.title}
+            </h3>
 
-        <div className="flex items-center gap-2 flex-wrap">
-          <Badge variant="outline" className="text-xs">
-            {caseData.topic}
-          </Badge>
-          <Badge className={`text-xs ${difficultyColors[caseData.difficulty]}`}>
-            {caseData.difficulty}
-          </Badge>
-          {caseData.isDefault && (
-            <Badge variant="outline" className="text-xs text-gray-400">
-              Default
+            <p className="text-sm text-muted-foreground line-clamp-3 mb-6 font-medium leading-relaxed">
+              {caseData.scenario}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between pt-4 border-t border-border/40 mt-auto">
+            <Badge className={`text-[9px] font-bold uppercase tracking-widest border shadow-none ${difficultyColors[caseData.difficulty]}`}>
+              {caseData.difficulty}
             </Badge>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+            
+            <div className="flex items-center gap-1 text-[11px] font-bold text-muted-foreground group-hover:text-primary transition-colors">
+              Open Scenario
+              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }

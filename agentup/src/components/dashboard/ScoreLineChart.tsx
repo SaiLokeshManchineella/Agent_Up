@@ -2,14 +2,15 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import { motion } from 'framer-motion';
 import type { DailyScore } from '@/types';
 
 interface ScoreLineChartProps {
@@ -19,14 +20,14 @@ interface ScoreLineChartProps {
 export function ScoreLineChart({ data }: ScoreLineChartProps) {
   if (data.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-gray-500">
-            Score Over Time
+      <Card className="border-border/60 bg-card shadow-sm rounded-xl h-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-wider">
+            Performance Progression
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-48 text-gray-400 text-sm">
-          Complete more sessions to see your score trend
+        <CardContent className="flex items-center justify-center h-[240px] text-muted-foreground text-sm font-medium">
+          Insufficient data for trend visualization
         </CardContent>
       </Card>
     );
@@ -41,30 +42,67 @@ export function ScoreLineChart({ data }: ScoreLineChartProps) {
   }));
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm font-medium text-gray-500">
-          Score Over Time (Last 30 Days)
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="date" tick={{ fontSize: 12 }} />
-            <YAxis domain={[0, 100]} tick={{ fontSize: 12 }} />
-            <Tooltip />
-            <Line
-              type="monotone"
-              dataKey="score"
-              stroke="#3b82f6"
-              strokeWidth={2}
-              dot={{ fill: '#3b82f6', r: 4 }}
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.99 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ delay: 0.1 }}
+    >
+      <Card className="border-border/60 bg-card shadow-sm rounded-xl overflow-hidden h-full">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-sm font-bold flex items-center justify-between">
+            <span>Historical Mastery (30D)</span>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Aggregate Telemetry</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ResponsiveContainer width="100%" height={240}>
+            <AreaChart data={chartData} margin={{ left: -20, right: 0, top: 10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.1} />
+                  <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <XAxis 
+                dataKey="date" 
+                tick={{ fontSize: 10, fill: 'var(--muted-foreground)', fontWeight: 600 }} 
+                axisLine={false}
+                tickLine={false}
+                dy={10}
+              />
+              <YAxis 
+                domain={[0, 100]} 
+                tick={{ fontSize: 10, fill: 'var(--muted-foreground)', fontWeight: 600 }} 
+                axisLine={false}
+                tickLine={false}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'var(--card)', 
+                  border: '1px solid var(--border)',
+                  borderRadius: '10px',
+                  boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.05)',
+                  fontSize: '11px',
+                  fontWeight: 700
+                }}
+                labelStyle={{ fontWeight: 800, fontSize: '11px', marginBottom: '4px' }}
+                itemStyle={{ fontSize: '11px', color: 'var(--primary)' }}
+              />
+              <Area
+                type="monotone"
+                dataKey="score"
+                stroke="var(--primary)"
+                strokeWidth={2}
+                fillOpacity={1}
+                fill="url(#colorScore)"
+                animationDuration={1500}
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 0, fill: 'var(--primary)' }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }

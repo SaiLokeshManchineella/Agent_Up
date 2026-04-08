@@ -28,7 +28,10 @@ export class SentenceDetector {
   flush(): void {
     const text = this.buffer.trim();
     if (text) {
-      this.onSentence?.(text);
+      const cleanText = text.replace(/\*[^*]*\*/g, '').trim();
+      if (cleanText) {
+        this.onSentence?.(cleanText);
+      }
     }
     this.buffer = '';
   }
@@ -41,7 +44,10 @@ export class SentenceDetector {
 
       const sentence = this.buffer.substring(0, boundary + 1).trim();
       if (sentence.length > 0) {
-        this.onSentence?.(sentence);
+        const cleanSentence = sentence.replace(/\*[^*]*\*/g, '').trim();
+        if (cleanSentence) {
+          this.onSentence?.(cleanSentence);
+        }
       }
       this.buffer = this.buffer.substring(boundary + 1).trimStart();
     }

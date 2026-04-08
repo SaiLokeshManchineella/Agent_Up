@@ -25,17 +25,22 @@ export interface WordData {
   confidence: number;
 }
 
+export interface ProxySTTOptions extends ProxySTTCallbacks {
+  prompt?: string;
+}
+
 export class ProxySTTStream {
   private callbacks: ProxySTTCallbacks | null = null;
+  private prompt: string | null = null;
   private sessionId: string | null = null;
-  private eventSource: EventSource | null = null;
   private disconnected = false;
   private audioSendInterval: ReturnType<typeof setInterval> | null = null;
   private audioQueue: string[] = []; // Base64 encoded audio chunks
   private isSending = false;
 
-  async connect(callbacks: ProxySTTCallbacks): Promise<void> {
-    this.callbacks = callbacks;
+  async connect(options: ProxySTTOptions): Promise<void> {
+    this.callbacks = options;
+    this.prompt = options.prompt || null;
     this.disconnected = false;
     this.sessionId = `stt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -43,7 +48,11 @@ export class ProxySTTStream {
     const res = await fetch('/api/stt-proxy', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'start', sessionId: this.sessionId }),
+      body: JSON.stringify({ 
+        action: 'start', 
+        sessionId: this.sessionId,
+        prompt: this.prompt // Titan Advanced STT: Pass context to proxy
+      }),
     });
 
     if (!res.ok || !res.body) {

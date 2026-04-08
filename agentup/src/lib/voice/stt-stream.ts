@@ -11,9 +11,14 @@ export interface STTCallbacks {
   onError: (error: string) => void;
 }
 
+export interface STTOptions extends STTCallbacks {
+  prompt?: string;
+}
+
 export class DeepgramSTTStream {
   private ws: WebSocket | null = null;
   private callbacks: STTCallbacks | null = null;
+  private prompt: string | null = null;
   private keepAliveInterval: ReturnType<typeof setInterval> | null = null;
   private disconnected = false;
 
@@ -27,10 +32,11 @@ export class DeepgramSTTStream {
 
   async connect(
     apiKey: string,
-    callbacks: STTCallbacks
+    options: STTOptions
   ): Promise<void> {
     this.apiKey = apiKey;
-    this.callbacks = callbacks;
+    this.callbacks = options;
+    this.prompt = options.prompt || null;
     this.disconnected = false;
     this.reconnectAttempts = 0;
 
@@ -38,7 +44,10 @@ export class DeepgramSTTStream {
   }
 
   private async createConnection(): Promise<void> {
-    const url = `wss://api.deepgram.com/v1/listen?model=nova-2&language=en&smart_format=true&interim_results=true&endpointing=300&vad_events=true&utterance_end_ms=1000&encoding=linear16&sample_rate=16000&channels=1`;
+    const baseUrl = `wss://api.deepgram.com/v1/listen?model=nova-2&language=en&smart_format=true&interim_results=true&endpointing=300&vad_events=true&utterance_end_ms=1000&encoding=linear16&sample_rate=16000&channels=1`;
+    const url = this.prompt 
+        ? `${baseUrl}&prompt=${encodeURIComponent(this.prompt)}`
+        : baseUrl;
 
     return new Promise((resolve, reject) => {
       let settled = false;

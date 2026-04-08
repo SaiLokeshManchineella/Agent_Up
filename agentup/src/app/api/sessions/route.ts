@@ -241,8 +241,23 @@ export async function POST(request: Request) {
           .run();
       }
     });
-
-    insertSession();
+    
+    let attempt = 0;
+    const maxRetries = 3;
+    while (attempt < maxRetries) {
+      try {
+        insertSession();
+        break; 
+      } catch (err: any) {
+        attempt++;
+        if (err.code === 'SQLITE_BUSY' && attempt < maxRetries) {
+          console.warn(`[SQLite] DB busy, retrying transaction (${attempt}/${maxRetries})...`);
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
+        } else {
+          throw err;
+        }
+      }
+    }
 
     // Return the new streak so client doesn't need a separate fetch
     const allSessions = db

@@ -50,26 +50,49 @@ export async function POST(request: Request) {
       content: transcript.slice(0, MAX_TRANSCRIPT_LENGTH),
     });
 
-    const stream = await openai.chat.completions.create({
-      model: MODEL,
-      messages: [{ role: 'system', content: systemPrompt }, ...chatMessages],
-      stream: true,
-      max_tokens: 200,
-      temperature: 0.8,
-    });
+    let stream;
+    try {
+      stream = await openai.chat.completions.create({
+        model: MODEL,
+        messages: [{ role: 'system', content: systemPrompt }, ...chatMessages],
+        stream: true,
+        max_tokens: 200,
+        temperature: 0.8,
+      });
+    } catch (err) {
+      console.warn(`[Voice API] Primary model (${MODEL}) failed, hot-swapping to gpt-4o-mini:`, err);
+      stream = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [{ role: 'system', content: systemPrompt }, ...chatMessages],
+        stream: true,
+        max_tokens: 200,
+        temperature: 0.8,
+      });
+    }
 
     const encoder = new TextEncoder();
     const readableStream = new ReadableStream({
       async start(controller) {
+        let hasContent = false;
         try {
           for await (const chunk of stream) {
             const text = chunk.choices[0]?.delta?.content || '';
             if (text) {
+              hasContent = true;
               controller.enqueue(
                 encoder.encode(`data: ${JSON.stringify({ text })}\n\n`)
               );
             }
           }
+
+          // Zero-Gap Safeguard: If AI returns empty response, provide a fallback "action" filler
+          if (!hasContent) {
+            const filler = "*listens attentively*";
+            controller.enqueue(
+              encoder.encode(`data: ${JSON.stringify({ text: filler })}\n\n`)
+            );
+          }
+
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
           controller.close();
         } catch (streamError) {

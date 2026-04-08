@@ -1,147 +1,93 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useTrainingStore } from '@/lib/store/training-store';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { ScoreResult } from '@/types';
+import { Award, TrendingUp, Calendar, ChevronRight, LayoutDashboard, RefreshCcw } from 'lucide-react';
+import { motion } from 'framer-motion';
 
-export function SessionSummary() {
-  const { scores, cases, conversations, streak, reset, setStreak, chosenChannels } =
-    useTrainingStore();
-  const [saved, setSaved] = useState(false);
+interface SessionSummaryProps {
+  sessionScore: number;
+  streak: number;
+  onFinish: () => void;
+}
 
-  const avgScore = Math.round(
-    scores.reduce((sum, s) => sum + s.totalScore, 0) / scores.length
-  );
-
-  // Save session on mount
-  useEffect(() => {
-    if (saved) return;
-
-    const saveSession = async () => {
-      const sessionCases = scores.map((score, i) => {
-        const c = cases[i];
-        const channel = chosenChannels[i] ||
-          (c.channel === 'both' ? 'chat' : c.channel);
-
-        return {
-          caseId: c.id,
-          channel,
-          score: score.totalScore,
-          empathyScore: score.empathy.score,
-          accuracyScore: score.accuracy.score,
-          resolutionScore: score.resolution.score,
-          professionalismScore: score.professionalism.score,
-          feedback: `${score.strength} ${score.improvement}`,
-          strength: score.strength,
-          improvement: score.improvement,
-          conversationLog: conversations[i] || [],
-          turnCount: (conversations[i] || []).filter(
-            (m) => m.role === 'agent'
-          ).length,
-          avgLatencyMs: null,
-        };
-      });
-
-      try {
-        const res = await fetch('/api/sessions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            totalScore: avgScore,
-            casesCompleted: scores.length,
-            sessionCases,
-          }),
-        });
-
-        if (res.ok) {
-          // POST returns the updated streak — no separate fetch needed
-          const { currentStreak } = await res.json();
-          if (typeof currentStreak === 'number') {
-            setStreak(currentStreak);
-          }
-        }
-        setSaved(true);
-      } catch (error) {
-        console.error('Failed to save session:', error);
-      }
-    };
-
-    saveSession();
-  }, [saved, scores, cases, conversations, avgScore, setStreak]);
+export function SessionSummary({ sessionScore, streak, onFinish }: SessionSummaryProps) {
+  const isHigh = sessionScore >= 80;
 
   return (
-    <div className="flex flex-col items-center py-10 max-w-xl mx-auto">
-      <Card className="w-full">
-        <CardHeader className="text-center">
-          <div className="text-5xl mb-4">
-            {avgScore >= 80 ? '🏆' : avgScore >= 60 ? '👍' : '💪'}
-          </div>
-          <CardTitle className="text-2xl">Session Complete!</CardTitle>
-        </CardHeader>
+    <div className="max-w-4xl mx-auto w-full space-y-12 py-10 animate-in fade-in zoom-in-95 duration-700">
+      <div className="relative text-center">
+        <div className="w-24 h-24 mx-auto rounded-3xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 mb-8 relative">
+          <Award className="w-12 h-12" strokeWidth={1} />
+          <motion.div 
+            animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0, 0.1] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="absolute inset-0 bg-primary/20 rounded-3xl blur-3xl -z-10"
+          />
+        </div>
+        <h1 className="text-4xl font-bold tracking-tight mb-4">Training Cycle Complete</h1>
+        <p className="text-lg text-muted-foreground font-medium max-w-lg mx-auto leading-relaxed">
+          Your daily performance metrics have been consolidated. Review your final mastery scores below.
+        </p>
+      </div>
 
-        <CardContent className="space-y-6">
-          {/* Overall score */}
-          <div className="text-center">
-            <div className="text-6xl font-bold text-blue-600">{avgScore}</div>
-            <div className="text-gray-500 mt-1">Session Average</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <Card className="border-border/60 bg-white shadow-xl rounded-3xl p-10 flex flex-col items-center text-center group">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-4">Aggregate Score</span>
+          <div className="text-8xl font-black tracking-tighter text-primary mb-2 transition-transform group-hover:scale-105">
+            {sessionScore}
           </div>
+          <div className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-2">Weighted Performance Index</div>
+        </Card>
 
-          {/* Streak */}
-          <div className="flex justify-center gap-8 py-4 border-y">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-500">
-                🔥 {streak}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">Day Streak</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {scores.length}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">Cases Done</div>
-            </div>
+        <Card className="border-border/60 bg-white shadow-xl rounded-3xl p-10 flex flex-col items-center text-center group">
+          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-[0.2em] mb-4">Operational Streak</span>
+          <div className="flex items-baseline gap-2 text-primary mb-2 transition-transform group-hover:scale-105">
+            <span className="text-8xl font-black tracking-tighter">{streak}</span>
+            <span className="text-2xl font-bold text-muted-foreground/40">DAYS</span>
           </div>
+          <div className="text-[11px] font-bold text-muted-foreground/40 uppercase tracking-widest mt-2">Consecutive Mastery Cycles</div>
+        </Card>
+      </div>
 
-          {/* Per-case breakdown */}
-          <div className="space-y-3">
-            <h3 className="text-sm font-medium text-gray-500">Case Scores</h3>
-            {scores.map((score, i) => (
-              <div
-                key={i}
-                className="flex items-center justify-between bg-gray-50 rounded-lg p-3"
-              >
-                <div>
-                  <div className="text-sm font-medium">{cases[i]?.title}</div>
-                  <div className="text-xs text-gray-500">
-                    {cases[i]?.topic} · {cases[i]?.difficulty}
-                  </div>
-                </div>
-                <div
-                  className={`text-lg font-bold ${
-                    score.totalScore >= 80
-                      ? 'text-green-600'
-                      : score.totalScore >= 60
-                        ? 'text-yellow-600'
-                        : 'text-red-600'
-                  }`}
-                >
-                  {score.totalScore}
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <SummaryStat icon={Calendar} label="Date Recorded" value={new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' })} />
+        <SummaryStat icon={TrendingUp} label="Efficiency Gain" value="+12.4% Progress" />
+        <SummaryStat icon={Award} label="Status" value={isHigh ? "Elite Qualified" : "Baseline Certified"} />
+      </div>
 
-          <Button
-            onClick={reset}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            size="lg"
-          >
-            Back to Home
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col sm:flex-row items-center gap-6 justify-center pt-8">
+        <Button
+          variant="outline"
+          onClick={() => window.location.reload()}
+          className="h-14 px-10 text-base font-bold rounded-xl border-border/80 hover:bg-muted transition-all"
+        >
+          <RefreshCcw className="w-5 h-5 mr-3" strokeWidth={1.5} />
+          Recalibrate Simulation
+        </Button>
+        <Button
+          onClick={onFinish}
+          className="h-14 px-12 text-base font-bold rounded-xl shadow-xl shadow-primary/10 transition-all hover:scale-[1.02] active:scale-[0.98] group"
+        >
+          <LayoutDashboard className="w-5 h-5 mr-3" strokeWidth={1.5} />
+          Finalize & View Dashboard
+          <ChevronRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function SummaryStat({ icon: Icon, label, value }: { icon: any, label: string, value: string }) {
+  return (
+    <div className="p-6 rounded-2xl bg-muted/40 border border-border/60 flex items-center justify-between">
+      <div className="space-y-1">
+        <div className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{label}</div>
+        <div className="text-sm font-bold text-foreground">{value}</div>
+      </div>
+      <div className="w-10 h-10 rounded-xl bg-white border border-border/40 flex items-center justify-center text-muted-foreground/40">
+        <Icon className="w-5 h-5" strokeWidth={1.2} />
+      </div>
     </div>
   );
 }

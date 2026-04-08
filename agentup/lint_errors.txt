@@ -1,0 +1,232 @@
+﻿
+> agentup@0.1.0 lint
+> eslint
+
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\app\cases\page.tsx
+   9:26  warning  'Sparkles' is defined but never used            @typescript-eslint/no-unused-vars
+  14:33  warning  'isLoading' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\cases\CaseFilters.tsx
+   4:18  warning  'MessageSquare' is defined but never used  @typescript-eslint/no-unused-vars
+   4:33  warning  'Phone' is defined but never used          @typescript-eslint/no-unused-vars
+  65:9   error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\cases\CaseForm.tsx
+  15:48  warning  'CheckCircle' is defined but never used  @typescript-eslint/no-unused-vars
+  15:61  warning  'Search' is defined but never used       @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\cases\CaseList.tsx
+   5:10  warning  'BookX' is defined but never used                                @typescript-eslint/no-unused-vars
+  37:20  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\dashboard\ChannelComparison.tsx
+  75:9  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\dashboard\StatsCards.tsx
+  4:46  warning  'Sparkles' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\training\CallSimulation.tsx
+  18:5  warning  'conversations' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  19:5  warning  'currentCaseIndex' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\training\CaseIntro.tsx
+  27:9  warning  'currentChannel' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\training\ChatSimulation.tsx
+   8:10  warning  'Badge' is defined but never used                                                                                                                                                                  @typescript-eslint/no-unused-vars
+   9:49  warning  'Activity' is defined but never used                                                                                                                                                               @typescript-eslint/no-unused-vars
+   9:59  warning  'ShieldCheck' is defined but never used                                                                                                                                                            @typescript-eslint/no-unused-vars
+  37:9   warning  The 'messages' logical expression could make the dependencies of useEffect Hook (at line 41) change on every render. To fix this, wrap the initialization of 'messages' in its own useMemo() Hook  react-hooks/exhaustive-deps
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\training\ScoreCard.tsx
+    4:10  warning  'Card' is defined but never used                                 @typescript-eslint/no-unused-vars
+   12:3   warning  'AlertCircle' is defined but never used                          @typescript-eslint/no-unused-vars
+   16:3   warning  'BrainCircuit' is defined but never used                         @typescript-eslint/no-unused-vars
+  193:97  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  210:23  error    Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\training\SessionManager.tsx
+  24:5  warning  'setPhase' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\training\SessionSummary.tsx
+  10:3  warning  'BarChart3' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx
+   11:3   warning  'MicOff' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+   13:3   warning  'AlertCircle' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   14:3   warning  'Clock' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+   16:3   warning  'Cpu' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+   18:3   warning  'Phone' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+   19:3   warning  'User' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              @typescript-eslint/no-unused-vars
+   36:10  warning  'aiResponse' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+   41:10  warning  'error' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+  138:27  warning  'metrics' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  157:14  warning  'err' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @typescript-eslint/no-unused-vars
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/refs
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/refs
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/refs
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/refs
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/refs
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/refs
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/refs
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/refs
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/refs
+  336:16  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:16
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 337 |                 <Button
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 338 |                     onClick={startCall}
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 340 |                 >
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 341 |                     <Zap className="w-6 h-6 mr-4 group-hover:animate-bounce" />
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 342 |                     Establish Link
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 343 |                 </Button>
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 344 |               )}
+      | ^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  345 |            </div>
+  346 |
+  347 |            <div className="flex flex-col items-end">  react-hooks/refs
+  336:17  error    Error: Cannot access refs during render
+
+React refs are values that are not needed for rendering. Refs should only be accessed outside of render, such as in event handlers or effects. Accessing a ref value (the `current` property) during render can cause your component not to update as expected (https://react.dev/reference/react/useRef).
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\components\voice\CallInterface.tsx:336:17
+  334 |               )}
+  335 |               
+> 336 |               {!pipelineRef.current && !isConnecting && !callEnded && (
+      |                 ^^^^^^^^^^^^^^^^^^^ Cannot access ref value during render
+  337 |                 <Button
+  338 |                     onClick={startCall}
+  339 |                     className="h-16 px-16 rounded-[1.25rem] bg-primary text-white titan-heading shadow-xl shadow-primary/20 border border-white/10 group"
+
+To initialize a ref only once, check that the ref is null with the pattern `if (ref.current == null) { ref.current = ... }`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         react-hooks/refs
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\lib\store\case-store.ts
+  2:21  warning  'Channel' is defined but never used     @typescript-eslint/no-unused-vars
+  2:30  warning  'Difficulty' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\lib\voice\audio-quality-monitor.ts
+  52:11  warning  'peak' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\lib\voice\stt-proxy-stream.ts
+  11:10  warning  'VOICE_CONFIG' is defined but never used  @typescript-eslint/no-unused-vars
+  88:16  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\Users\Asus\Desktop\AgentUp (2)\AgentUp\agentup\src\lib\voice\stt-stream.ts
+  128:26  warning  'event' is defined but never used  @typescript-eslint/no-unused-vars
+
+Γ£û 52 problems (16 errors, 36 warnings)
+

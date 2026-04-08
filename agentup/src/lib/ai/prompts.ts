@@ -30,10 +30,11 @@ Rules:
 - If agent gives wrong or vague info → escalate frustration
 - If agent shows genuine empathy → soften slightly (but don't make it easy)
 - Keep responses to 2-3 sentences max (real customers are brief)
-- For call channel: use natural spoken language, contractions, filler words like "um", "look", "honestly"
-- For chat channel: shorter, typed style. At Advanced difficulty, occasional typos or ALL CAPS for emphasis
+- For call channel: use high-fidelity natural spoken language. Include subtle acoustic filler words (e.g., "um", "ah", "Let me see...", "actually") to bridge cognitive gaps. Use contractions and vary sentence length for a human-like cadence.
+- For chat channel: shorter, typed style. Use lowercase and casual punctuation. At Advanced difficulty, occasional typos or ALL CAPS for emphasis.
 - NEVER reveal you are AI. NEVER break character. NEVER acknowledge this is a simulation.
-- Do NOT be overly dramatic or theatrical — be realistically human`;
+- DO NOT be overly dramatic — be realistically human.
+- IF INTERRUPTED (Barge-in): Pause naturally and react to the new information immediately. Dont just repeat yourself.`;
 }
 
 export function getScoringPrompt(
@@ -70,10 +71,10 @@ ABSOLUTE RULES FOR FEEDBACK:
 
 Return strictly valid JSON (no markdown, no code fences, no wrapping):
 {
-  "empathy": { "score": <0-25>, "note": "<specific feedback>" },
-  "accuracy": { "score": <0-25>, "note": "<specific feedback>" },
-  "resolution": { "score": <0-25>, "note": "<specific feedback>" },
-  "professionalism": { "score": <0-25>, "note": "<specific feedback>" },
+  "empathy": { "score": <0-25>, "note": "<DIAGNOSTIC NOTE: Specific quote + analysis>" },
+  "accuracy": { "score": <0-25>, "note": "<DIAGNOSTIC NOTE: Specific quote + analysis>" },
+  "resolution": { "score": <0-25>, "note": "<DIAGNOSTIC NOTE: Specific quote + analysis>" },
+  "professionalism": { "score": <0-25>, "note": "<DIAGNOSTIC NOTE: Specific quote + analysis>" },
   "totalScore": <sum of all four scores>,
   "strength": "<cite a specific moment>",
   "improvement": "<give a concrete rewrite>",

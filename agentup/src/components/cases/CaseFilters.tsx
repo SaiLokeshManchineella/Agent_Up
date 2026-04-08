@@ -1,69 +1,99 @@
 'use client';
 
 import { useCaseStore } from '@/lib/store/case-store';
+import { Search, Filter, X } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
-const topics = ['all', 'Billing', 'De-escalation', 'Technical', 'Retention'];
-const channels = ['all', 'chat', 'call', 'both'];
-const difficulties = ['all', 'Beginner', 'Intermediate', 'Advanced'];
+const topics = ['Sales', 'Support', 'Critical', 'Retention', 'Technical'];
+const channels = ['chat', 'call', 'both'];
 
 export function CaseFilters() {
-  const { filters, setFilter, cases } = useCaseStore();
-
-  // Get unique custom topics from cases
-  const customTopics = Array.from(
-    new Set(cases.map((c) => c.topic).filter((t) => !topics.includes(t)))
-  );
-  const allTopics = [...topics, ...customTopics];
+  const { 
+    searchQuery, 
+    setSearchQuery, 
+    selectedTopic, 
+    setSelectedTopic,
+    selectedChannel,
+    setSelectedChannel
+  } = useCaseStore();
 
   return (
-    <div className="flex flex-wrap gap-3">
-      <FilterSelect
-        label="Topic"
-        value={filters.topic}
-        options={allTopics}
-        onChange={(v) => setFilter('topic', v)}
-      />
-      <FilterSelect
-        label="Channel"
-        value={filters.channel}
-        options={channels}
-        onChange={(v) => setFilter('channel', v)}
-      />
-      <FilterSelect
-        label="Difficulty"
-        value={filters.difficulty}
-        options={difficulties}
-        onChange={(v) => setFilter('difficulty', v)}
-      />
-    </div>
-  );
-}
+    <div className="space-y-6 animate-in fade-in slide-in-from-top-4 duration-500">
+      <div className="relative group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground transition-colors group-focus-within:text-primary" strokeWidth={1.5} />
+        <Input
+          placeholder="Search scenarios by title or keywords..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-11 h-12 bg-white border-border shadow-none focus-visible:ring-1 focus-visible:ring-primary/20 transition-all rounded-xl font-medium"
+        />
+        {searchQuery && (
+          <button 
+            onClick={() => setSearchQuery('')}
+            className="absolute right-4 top-1/2 -translate-y-1/2 p-1 hover:bg-muted rounded-md text-muted-foreground transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </div>
 
-function FilterSelect({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div className="flex items-center gap-2">
-      <label className="text-sm text-gray-500">{label}:</label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 focus:border-blue-500 focus:outline-none"
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>
-            {opt === 'all' ? `All ${label}s` : opt}
-          </option>
-        ))}
-      </select>
+      <div className="flex flex-wrap items-center gap-8 py-2 border-b border-border/40">
+        <div className="flex items-center gap-2">
+          <Filter className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+          <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Filters</span>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span className="text-xs font-bold text-muted-foreground/60">Topic:</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setSelectedTopic(null)}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                !selectedTopic ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              All
+            </button>
+            {topics.map((topic) => (
+              <button
+                key={topic}
+                onClick={() => setSelectedTopic(topic)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  selectedTopic === topic ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                {topic}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span className="text-xs font-bold text-muted-foreground/60">Channel:</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setSelectedChannel(null)}
+              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+                !selectedChannel ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+              }`}
+            >
+              All
+            </button>
+            {channels.map((channel) => (
+              <button
+                key={channel}
+                onClick={() => setSelectedChannel(channel)}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold capitalize transition-all ${
+                  selectedChannel === channel ? 'bg-primary text-white' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                {channel}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

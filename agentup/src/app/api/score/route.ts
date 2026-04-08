@@ -49,20 +49,40 @@ export async function POST(request: Request) {
 
     const prompt = getScoringPrompt(scenario, difficulty, conversation);
 
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a call centre quality assurance evaluator. Return only valid JSON.',
-        },
-        { role: 'user', content: prompt },
-      ],
-      response_format: { type: 'json_object' },
-      temperature: 0.3,
-      max_tokens: 500,
-    });
+    let response;
+    try {
+      response = await openai.chat.completions.create({
+        model: MODEL,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a call centre quality assurance evaluator. Return only valid JSON.',
+          },
+          { role: 'user', content: prompt },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.3,
+        max_tokens: 500,
+      });
+    } catch (error) {
+      console.warn(`[Score API] Primary model (${MODEL}) failed, hot-swapping to gpt-4o-mini:`, error);
+      // Hot-swap failover to gpt-4o-mini
+      response = await openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a call centre quality assurance evaluator. Return only valid JSON.',
+          },
+          { role: 'user', content: prompt },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.3,
+        max_tokens: 500,
+      });
+    }
 
     const content = response.choices[0]?.message?.content || '{}';
 
@@ -89,11 +109,11 @@ export async function POST(request: Request) {
       );
     }
 
-    // Clamp individual scores to 0-25 range
-    score.empathy.score = Math.max(0, Math.min(25, Math.round(score.empathy.score)));
-    score.accuracy.score = Math.max(0, Math.min(25, Math.round(score.accuracy.score)));
-    score.resolution.score = Math.max(0, Math.min(25, Math.round(score.resolution.score)));
-    score.professionalism.score = Math.max(0, Math.min(25, Math.round(score.professionalism.score)));
+    // Clamp individual scores to 0-25 range — Defensive coercion included
+    score.empathy.score = Math.max(0, Math.min(25, Math.round(Number(score.empathy.score) || 0)));
+    score.accuracy.score = Math.max(0, Math.min(25, Math.round(Number(score.accuracy.score) || 0)));
+    score.resolution.score = Math.max(0, Math.min(25, Math.round(Number(score.resolution.score) || 0)));
+    score.professionalism.score = Math.max(0, Math.min(25, Math.round(Number(score.professionalism.score) || 0)));
 
     // Ensure totalScore matches sum
     score.totalScore =

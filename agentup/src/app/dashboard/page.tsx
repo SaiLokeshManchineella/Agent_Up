@@ -6,6 +6,8 @@ import { TopicBreakdown } from '@/components/dashboard/TopicBreakdown';
 import { ChannelComparison } from '@/components/dashboard/ChannelComparison';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { SessionHistory } from '@/components/dashboard/SessionHistory';
+import { BarChart3, LayoutDashboard, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type {
   DailyScore,
   TopicScore,
@@ -50,14 +52,17 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900">My Dashboard</h1>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="space-y-8 animate-in fade-in duration-500">
+        <div className="h-10 w-48 bg-muted rounded-lg animate-pulse" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-24 rounded-lg bg-gray-100 animate-pulse" />
+            <div key={i} className="h-32 rounded-xl bg-muted animate-pulse" />
           ))}
         </div>
-        <div className="h-64 rounded-lg bg-gray-100 animate-pulse" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="h-80 rounded-xl bg-muted animate-pulse" />
+          <div className="h-80 rounded-xl bg-muted animate-pulse" />
+        </div>
       </div>
     );
   }
@@ -65,29 +70,55 @@ export default function DashboardPage() {
   const hasData = dailyScores.length > 0 || history.length > 0;
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">My Dashboard</h1>
+    <div className="max-w-6xl mx-auto space-y-10 py-6">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Performance Intel</h1>
+          <p className="text-muted-foreground mt-1 text-sm font-medium">Real-time coaching telemetry and progress tracking</p>
+        </div>
+        {!hasData && (
+          <div className="px-4 py-2 bg-secondary text-secondary-foreground rounded-lg text-sm font-medium shadow-sm border border-border">
+            No telemetry data recorded yet
+          </div>
+        )}
+      </header>
 
       {!hasData ? (
-        <div className="text-center py-20 text-gray-500">
-          <div className="text-5xl mb-4">📊</div>
-          <h2 className="text-xl font-semibold mb-2">No data yet</h2>
-          <p>Complete a training session to see your performance stats.</p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="flex flex-col items-center justify-center py-24 text-center rounded-2xl bg-muted/50 border border-border transition-all"
+        >
+          <div className="w-16 h-16 mb-6 rounded-2xl bg-white flex items-center justify-center text-muted-foreground/30 shadow-sm border border-border/60">
+            <BarChart3 className="w-8 h-8" strokeWidth={1} />
+          </div>
+          <h2 className="text-xl font-bold mb-3 tracking-tight">Calibrate Your Mastery</h2>
+          <p className="max-w-md text-muted-foreground leading-relaxed mb-10 text-sm font-medium">
+            Take part in your first training session to unlock full-stack metrics, skill-gap analysis, and performance overviews.
+          </p>
+          <a 
+            href="/" 
+            className="inline-flex items-center justify-center px-8 h-12 bg-primary text-primary-foreground font-bold rounded-lg hover:bg-primary/90 transition-all shadow-md shadow-primary/10"
+          >
+            Commence Daily Training
+          </a>
+        </motion.div>
       ) : (
-        <>
-          {stats && <StatsCards stats={stats} />}
+        <AnimatePresence>
+          <div className="space-y-8">
+            {stats && <StatsCards stats={stats} />}
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ScoreLineChart data={dailyScores} />
-            <TopicBreakdown data={topicScores} />
-          </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <ScoreLineChart data={dailyScores} />
+              <TopicBreakdown data={topicScores} />
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <ChannelComparison data={channelScores} />
-            <SessionHistory data={history} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <ChannelComparison data={channelScores} />
+              <SessionHistory data={history} />
+            </div>
           </div>
-        </>
+        </AnimatePresence>
       )}
     </div>
   );

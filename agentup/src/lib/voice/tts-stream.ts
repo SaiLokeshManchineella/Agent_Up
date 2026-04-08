@@ -16,6 +16,7 @@ export class TTSStream {
   private browserTTSQueue: string[] = [];
   private isBrowserSpeaking = false;
   private browserVoice: SpeechSynthesisVoice | null = null;
+  private fetchQueuePromise: Promise<void> = Promise.resolve();
 
   constructor() {
     this.ttsCache = new TTSCache();
@@ -71,7 +72,15 @@ export class TTSStream {
 
   async speak(text: string): Promise<void> {
     if (!text.trim()) return;
+    
+    // Sequentialize fetches natively to avoid race condition where short sentence 2 
+    // downloads faster than long sentence 1 and plays out of order
+    const executionPromise = this.fetchQueuePromise.then(() => this.processAudioFetch(text));
+    this.fetchQueuePromise = executionPromise.catch(() => {}); // prevent chain breakage
+    await executionPromise;
+  }
 
+  private async processAudioFetch(text: string): Promise<void> {
     // Check cache first — 0ms latency on hit
     const cached = this.ttsCache.get(text);
     if (cached) {

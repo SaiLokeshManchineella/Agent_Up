@@ -1,6 +1,9 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MessageSquare, Phone, Activity } from 'lucide-react';
+import { motion } from 'framer-motion';
+import React from 'react';
 import type { ChannelScore } from '@/types';
 
 interface ChannelComparisonProps {
@@ -10,14 +13,15 @@ interface ChannelComparisonProps {
 export function ChannelComparison({ data }: ChannelComparisonProps) {
   if (data.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium text-gray-500">
-            Chat vs Call
+      <Card className="border-border/60 bg-card shadow-sm rounded-xl h-full">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+            <Activity className="w-4 h-4" strokeWidth={1} />
+            Channel Intel
           </CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-48 text-gray-400 text-sm">
-          Complete sessions in both channels to compare
+        <CardContent className="flex items-center justify-center h-[240px] text-muted-foreground text-sm font-medium">
+          Unlock dual-channel analytics after initial sessions
         </CardContent>
       </Card>
     );
@@ -27,27 +31,31 @@ export function ChannelComparison({ data }: ChannelComparisonProps) {
   const callScore = data.find((d) => d.channel === 'call');
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-sm font-medium text-gray-500">
-          Chat vs Call
+    <Card className="border-border/60 bg-card shadow-sm rounded-xl overflow-hidden h-full">
+      <CardHeader className="pb-4 border-b border-border/50">
+        <CardTitle className="text-sm font-bold flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Activity className="w-4 h-4 text-muted-foreground" strokeWidth={1.5} />
+            Multimodal Benchmarks
+          </div>
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Cross-Channel Sync</span>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <div className="flex gap-4">
           <ChannelCard
-            icon="💬"
-            label="Chat"
+            icon={MessageSquare}
+            label="Chat Performance"
             score={chatScore ? Math.round(chatScore.avgScore) : null}
             count={chatScore?.count || 0}
-            color="blue"
+            delay={0.2}
           />
           <ChannelCard
-            icon="📞"
-            label="Call"
+            icon={Phone}
+            label="Voice Performance"
             score={callScore ? Math.round(callScore.avgScore) : null}
             count={callScore?.count || 0}
-            color="green"
+            delay={0.3}
           />
         </div>
       </CardContent>
@@ -56,31 +64,44 @@ export function ChannelComparison({ data }: ChannelComparisonProps) {
 }
 
 function ChannelCard({
-  icon,
+  icon: Icon,
   label,
   score,
   count,
-  color,
+  delay
 }: {
-  icon: string;
+  icon: React.ElementType;
   label: string;
   score: number | null;
   count: number;
-  color: 'blue' | 'green';
+  delay: number;
 }) {
-  const bg = color === 'blue' ? 'bg-blue-50' : 'bg-green-50';
-  const textColor = color === 'blue' ? 'text-blue-600' : 'text-green-600';
-
   return (
-    <div className={`flex-1 rounded-xl ${bg} p-6 text-center`}>
-      <div className="text-3xl mb-2">{icon}</div>
-      <div className="text-sm text-gray-500 mb-1">{label}</div>
-      <div className={`text-3xl font-bold ${textColor}`}>
-        {score !== null ? score : '—'}
+    <motion.div 
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      className="flex-1 rounded-xl bg-muted/40 border border-border/60 p-5 text-center transition-colors"
+    >
+      <div className="w-10 h-10 mx-auto mb-4 rounded-lg bg-white border border-border/50 flex items-center justify-center text-foreground/70 shadow-sm">
+        <Icon className="w-5 h-5" strokeWidth={1.5} />
       </div>
-      <div className="text-xs text-gray-400 mt-1">
-        {count} session{count !== 1 ? 's' : ''}
+      
+      <div className="text-[11px] font-bold tracking-wider text-muted-foreground uppercase mb-1">{label}</div>
+      <div className={`text-3xl font-bold tracking-tight mb-2 flex items-baseline justify-center gap-0.5`}>
+        {score !== null ? (
+          <>
+            <span>{score}</span>
+            <span className="text-sm font-medium text-muted-foreground/60">%</span>
+          </>
+        ) : (
+          <span className="text-muted-foreground/20 font-medium">--</span>
+        )}
       </div>
-    </div>
+      
+      <div className="text-[10px] font-bold text-muted-foreground/60 bg-white/50 border border-border/30 rounded-md py-1 px-3 w-max mx-auto shadow-sm">
+        {count} Sessions Recorded
+      </div>
+    </motion.div>
   );
 }

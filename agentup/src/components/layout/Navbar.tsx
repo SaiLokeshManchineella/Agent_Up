@@ -2,28 +2,29 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { BrainCircuit, LayoutDashboard, Search, User } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const navItems = [
-  { href: '/', label: 'Daily Training', icon: '🎯' },
-  { href: '/cases', label: 'My Cases', icon: '📋' },
-  { href: '/dashboard', label: 'My Dashboard', icon: '📊' },
+  { href: '/', label: 'Daily Training', icon: BrainCircuit },
+  { href: '/cases', label: 'My Cases', icon: Search },
+  { href: '/dashboard', label: 'My Dashboard', icon: LayoutDashboard },
 ];
 
 export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 text-sm font-bold text-white">
-            A
+    <nav className="sticky top-0 z-50 w-full border-b border-border/80 bg-white/80 backdrop-blur-md">
+      <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white shadow-sm transition-transform group-hover:scale-105">
+            <BrainCircuit className="w-5 h-5" />
           </div>
-          <span className="text-xl font-bold text-gray-900">AgentUp</span>
+          <span className="font-bold text-lg tracking-tight">AgentUp</span>
         </Link>
 
-        <div className="flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => {
             const isActive =
               item.href === '/'
@@ -34,18 +35,23 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={cn(
-                  'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-blue-50 text-blue-700'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                )}
+                className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive ? 'text-primary bg-muted' : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+                }`}
               >
-                <span>{item.icon}</span>
-                <span className="hidden sm:inline">{item.label}</span>
+                <div className="flex items-center gap-2">
+                  <item.icon className="w-4 h-4" strokeWidth={isActive ? 2.5 : 2} />
+                  <span>{item.label}</span>
+                </div>
               </Link>
             );
           })}
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="hidden sm:flex w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer border border-border/50">
+            <User className="w-4 h-4" />
+          </div>
         </div>
       </div>
     </nav>
