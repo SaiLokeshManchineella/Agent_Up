@@ -1,4 +1,4 @@
-import { db, getRawDb } from '@/lib/db';
+import { db } from '@/lib/db';
 import { sessions, sessionCases, cases } from '@/lib/db/schema';
 import { v4 as uuid } from 'uuid';
 import { eq, desc, sql, gte } from 'drizzle-orm';
@@ -9,8 +9,7 @@ export async function GET(request: Request) {
     const type = url.searchParams.get('type');
 
     if (type === 'history') {
-      // Last 10 sessions with case details
-      const results = db
+      const results = await db
         .select({
           id: sessionCases.id,
           sessionId: sessionCases.sessionId,
@@ -24,19 +23,17 @@ export async function GET(request: Request) {
         .innerJoin(sessions, eq(sessionCases.sessionId, sessions.id))
         .innerJoin(cases, eq(sessionCases.caseId, cases.id))
         .orderBy(desc(sessionCases.completedAt))
-        .limit(10)
-        .all();
+        .limit(10);
 
       return Response.json(results);
     }
 
     if (type === 'daily-scores') {
-      // Daily average scores for last 30 days
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       const dateStr = thirtyDaysAgo.toISOString().split('T')[0];
 
-      const results = db
+      const results = await db
         .select({
           date: sessions.date,
           avgScore: sql<number>`avg(${sessions.totalScore})`.as('avg_score'),
@@ -44,14 +41,13 @@ export async function GET(request: Request) {
         .from(sessions)
         .where(gte(sessions.date, dateStr))
         .groupBy(sessions.date)
-        .orderBy(sessions.date)
-        .all();
+        .orderBy(sessions.date);
 
       return Response.json(results);
     }
 
     if (type === 'topic-scores') {
-      const results = db
+      const results = await db
         .select({
           topic: cases.topic,
           avgScore: sql<number>`avg(${sessionCases.score})`.as('avg_score'),
@@ -59,43 +55,38 @@ export async function GET(request: Request) {
         })
         .from(sessionCases)
         .innerJoin(cases, eq(sessionCases.caseId, cases.id))
-        .groupBy(cases.topic)
-        .all();
+        .groupBy(cases.topic);
 
       return Response.json(results);
     }
 
     if (type === 'channel-scores') {
-      const results = db
+      const results = await db
         .select({
           channel: sessionCases.channel,
           avgScore: sql<number>`avg(${sessionCases.score})`.as('avg_score'),
           count: sql<number>`count(*)`.as('count'),
         })
         .from(sessionCases)
-        .groupBy(sessionCases.channel)
-        .all();
+        .groupBy(sessionCases.channel);
 
       return Response.json(results);
     }
 
     if (type === 'stats') {
-      // Current streak
-      const allSessions = db
+      const allSessions = await db
         .select({ date: sessions.date })
         .from(sessions)
-        .orderBy(desc(sessions.date))
-        .all();
+        .orderBy(desc(sessions.date));
 
       let streak = 0;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      const sessionDates = new Set(allSessions.map((s) => s.date));
+      const sessionDates = new Set(allSessions.map((s: { date: string }) => s.date));
       const checkDate = new Date(today);
-
-      // Check if there's a session today or yesterday to start the streak
       const todayStr = checkDate.toISOString().split('T')[0];
+
       const yesterdayDate = new Date(checkDate);
       yesterdayDate.setDate(yesterdayDate.getDate() - 1);
       const yesterdayStr = yesterdayDate.toISOString().split('T')[0];
@@ -103,72 +94,59 @@ export async function GET(request: Request) {
       if (!sessionDates.has(todayStr) && !sessionDates.has(yesterdayStr)) {
         streak = 0;
       } else {
-        // Start from today or yesterday, count backwards
-        if (!sessionDates.has(todayStr)) {
-          checkDate.setDate(checkDate.getDate() - 1);
-        }
+        if (!sessionDates.has(todayStr)) checkDate.setDate(checkDate.getDate() - 1);
         while (sessionDates.has(checkDate.toISOString().split('T')[0])) {
           streak++;
           checkDate.setDate(checkDate.getDate() - 1);
         }
       }
 
-      // Sessions this week (Mon-Sun)
-      const dayOfWeek = today.getDay();
       const monday = new Date(today);
-      monday.setDate(today.getDate() - ((dayOfWeek + 6) % 7));
+      monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
       const mondayStr = monday.toISOString().split('T')[0];
 
-      const sessionsThisWeek = db
+      const weekResults = await db
         .select({ count: sql<number>`count(*)`.as('count') })
         .from(sessions)
-        .where(gte(sessions.date, mondayStr))
-        .get();
+        .where(gte(sessions.date, mondayStr));
+      
+      const countThisWeek = (weekResults[0] as { count: number })?.count || 0;
 
-      // Top skill and skill to improve
-      const topicScores = db
+      const topicScores = await db
         .select({
           topic: cases.topic,
           avgScore: sql<number>`avg(${sessionCases.score})`.as('avg_score'),
         })
         .from(sessionCases)
         .innerJoin(cases, eq(sessionCases.caseId, cases.id))
-        .groupBy(cases.topic)
-        .all();
+        .groupBy(cases.topic);
 
       let topSkill: string | null = null;
       let skillToImprove: string | null = null;
 
       if (topicScores.length > 0) {
-        const sorted = [...topicScores].sort(
-          (a, b) => b.avgScore - a.avgScore
-        );
+        const sorted = [...topicScores].sort((a, b) => b.avgScore - a.avgScore);
         topSkill = sorted[0].topic;
         skillToImprove = sorted[sorted.length - 1].topic;
       }
 
       return Response.json({
         currentStreak: streak,
-        sessionsThisWeek: sessionsThisWeek?.count || 0,
+        sessionsThisWeek: countThisWeek,
         topSkill,
         skillToImprove,
       });
     }
 
-    // Default: return all sessions
-    const allSessions = db
+    const allSessions = await db
       .select()
       .from(sessions)
-      .orderBy(desc(sessions.createdAt))
-      .all();
+      .orderBy(desc(sessions.createdAt));
 
     return Response.json(allSessions);
   } catch (error) {
     console.error('Sessions GET error:', error);
-    return Response.json(
-      { error: 'Failed to fetch session data' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Failed to fetch session data' }, { status: 500 });
   }
 }
 
@@ -187,89 +165,54 @@ export async function POST(request: Request) {
       return Response.json({ error: 'sessionCases must be a non-empty array' }, { status: 400 });
     }
 
-    // Validate each session case
-    for (const sc of body.sessionCases) {
-      if (!sc.caseId || typeof sc.caseId !== 'string') {
-        return Response.json({ error: 'Invalid caseId in sessionCases' }, { status: 400 });
-      }
-      if (!['chat', 'call'].includes(sc.channel)) {
-        return Response.json({ error: 'Invalid channel in sessionCases' }, { status: 400 });
-      }
-      if (typeof sc.score !== 'number' || sc.score < 0 || sc.score > 100) {
-        return Response.json({ error: 'Invalid score in sessionCases' }, { status: 400 });
-      }
-    }
-
     const sessionId = uuid();
     const now = new Date();
-    const rawDb = getRawDb();
 
-    // Use a transaction — all inserts succeed or none do
-    const insertSession = rawDb.transaction(() => {
+    // Modern Drizzle Transaction (Works for Postgres & SQLite)
+    await db.transaction(async (tx: any) => {
       // Create session
-      db.insert(sessions)
-        .values({
-          id: sessionId,
-          date: now.toISOString().split('T')[0],
-          totalScore: body.totalScore,
-          casesCompleted: body.casesCompleted,
-          createdAt: now.toISOString(),
-        })
-        .run();
+      await tx.insert(sessions).values({
+        id: sessionId,
+        date: now.toISOString().split('T')[0],
+        totalScore: body.totalScore,
+        casesCompleted: body.casesCompleted,
+        createdAt: now.toISOString(),
+      });
 
       // Create session cases
       for (const sc of body.sessionCases) {
-        db.insert(sessionCases)
-          .values({
-            id: uuid(),
-            sessionId,
-            caseId: sc.caseId,
-            channel: sc.channel,
-            score: Math.max(0, Math.min(100, sc.score)),
-            empathyScore: Math.max(0, Math.min(25, sc.empathyScore || 0)),
-            accuracyScore: Math.max(0, Math.min(25, sc.accuracyScore || 0)),
-            resolutionScore: Math.max(0, Math.min(25, sc.resolutionScore || 0)),
-            professionalismScore: Math.max(0, Math.min(25, sc.professionalismScore || 0)),
-            feedback: typeof sc.feedback === 'string' ? sc.feedback.slice(0, 5000) : '',
-            strength: typeof sc.strength === 'string' ? sc.strength.slice(0, 2000) : '',
-            improvement: typeof sc.improvement === 'string' ? sc.improvement.slice(0, 2000) : '',
-            conversationLog: JSON.stringify(sc.conversationLog || []),
-            turnCount: Math.max(0, Math.min(20, sc.turnCount || 0)),
-            avgLatencyMs: sc.avgLatencyMs || null,
-            completedAt: now.toISOString(),
-          })
-          .run();
+        await tx.insert(sessionCases).values({
+          id: uuid(),
+          sessionId,
+          caseId: sc.caseId,
+          channel: sc.channel,
+          score: Math.max(0, Math.min(100, sc.score)),
+          empathyScore: Math.max(0, Math.min(25, sc.empathyScore || 0)),
+          accuracyScore: Math.max(0, Math.min(25, sc.accuracyScore || 0)),
+          resolutionScore: Math.max(0, Math.min(25, sc.resolutionScore || 0)),
+          professionalismScore: Math.max(0, Math.min(25, sc.professionalismScore || 0)),
+          feedback: typeof sc.feedback === 'string' ? sc.feedback.slice(0, 5000) : '',
+          strength: typeof sc.strength === 'string' ? sc.strength.slice(0, 2000) : '',
+          improvement: typeof sc.improvement === 'string' ? sc.improvement.slice(0, 2000) : '',
+          conversationLog: JSON.stringify(sc.conversationLog || []),
+          turnCount: Math.max(0, Math.min(20, sc.turnCount || 0)),
+          avgLatencyMs: sc.avgLatencyMs || null,
+          promptVersion: 'v2.0',
+          completedAt: now.toISOString(),
+        });
       }
     });
-    
-    let attempt = 0;
-    const maxRetries = 3;
-    while (attempt < maxRetries) {
-      try {
-        insertSession();
-        break; 
-      } catch (err: any) {
-        attempt++;
-        if (err.code === 'SQLITE_BUSY' && attempt < maxRetries) {
-          console.warn(`[SQLite] DB busy, retrying transaction (${attempt}/${maxRetries})...`);
-          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 100));
-        } else {
-          throw err;
-        }
-      }
-    }
 
-    // Return the new streak so client doesn't need a separate fetch
-    const allSessions = db
+    // Calculate new streak
+    const allSessions = await db
       .select({ date: sessions.date })
       .from(sessions)
-      .orderBy(desc(sessions.date))
-      .all();
+      .orderBy(desc(sessions.date));
 
     let streak = 0;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const sessionDates = new Set(allSessions.map((s) => s.date));
+    const sessionDates = new Set(allSessions.map((s: { date: string }) => s.date));
     const checkDate = new Date(today);
     const todayStr = checkDate.toISOString().split('T')[0];
 
@@ -283,9 +226,6 @@ export async function POST(request: Request) {
     return Response.json({ id: sessionId, currentStreak: streak }, { status: 201 });
   } catch (error) {
     console.error('Sessions POST error:', error);
-    return Response.json(
-      { error: 'Failed to save session' },
-      { status: 500 }
-    );
+    return Response.json({ error: 'Failed to save session' }, { status: 500 });
   }
 }

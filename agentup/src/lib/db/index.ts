@@ -5,8 +5,8 @@ import Database from 'better-sqlite3';
 import * as schema from './schema';
 import path from 'path';
 
-const SCHEMA_VERSION = 2;
-const isPostgres = !!process.env.POSTGRES_URL;
+export const SCHEMA_VERSION = 2;
+export const isPostgres = !!process.env.POSTGRES_URL;
 
 let _db: any = null;
 
