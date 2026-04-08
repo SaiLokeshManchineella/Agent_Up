@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MessageSquare, Phone, MessagesSquare, CheckCircle2, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTrainingStore } from '@/lib/store/training-store';
+import { useRouter } from 'next/navigation';
 import type { Case } from '@/types';
 
 interface CaseCardProps {
@@ -23,11 +25,20 @@ const channelIcons = {
 };
 
 export function CaseCard({ caseData }: CaseCardProps) {
+  const router = useRouter();
+  const { startSession } = useTrainingStore();
+
+  const handleOpen = () => {
+    startSession([caseData]);
+    router.push('/');
+  };
+
   return (
     <motion.div
       whileHover={{ y: -2 }}
       transition={{ duration: 0.2 }}
-      className="h-full"
+      className="h-full cursor-pointer"
+      onClick={handleOpen}
     >
       <Card className="group h-full flex flex-col border-border/60 bg-card shadow-[0_1px_3px_rgba(0,0,0,0.02)] hover:shadow-md hover:border-border transition-all rounded-xl overflow-hidden cursor-pointer">
         <CardContent className="p-6 flex flex-col h-full">

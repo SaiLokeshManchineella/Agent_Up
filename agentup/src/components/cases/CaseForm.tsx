@@ -67,10 +67,10 @@ export function CaseForm({ onClose, onCreated }: CaseFormProps) {
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border-border shadow-2xl p-0 overflow-hidden bg-white">
-        <div className="h-1.5 bg-primary w-full" />
+      <DialogContent className="max-w-2xl max-h-[92vh] overflow-hidden flex flex-col rounded-2xl border-border shadow-2xl p-0 bg-white">
+        <div className="h-1.5 bg-primary w-full shrink-0" />
         
-        <div className="p-8">
+        <div className="p-8 overflow-y-auto flex-1 custom-scrollbar">
           <DialogHeader className="mb-8">
             <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest mb-2">
               <Brain className="w-4 h-4" strokeWidth={1.5} />
