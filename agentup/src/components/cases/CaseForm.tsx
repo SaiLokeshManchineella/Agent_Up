@@ -156,42 +156,48 @@ export function CaseForm({ onClose, onCreated }: CaseFormProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Interaction Channel</Label>
-                <div className="flex gap-2">
+            <div className="space-y-10 py-2">
+              <div className="space-y-4 p-5 rounded-2xl bg-muted/30 border border-border/40">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Interaction Channel</Label>
+                  <span className="text-[10px] font-bold text-primary/60 bg-primary/5 px-2 py-0.5 rounded-md border border-primary/10">Required</span>
+                </div>
+                <div className="flex gap-3">
                   {(['chat', 'call', 'both'] as Channel[]).map((ch) => (
                     <button
                       key={ch}
                       type="button"
                       onClick={() => setChannel(ch)}
-                      className={`flex-1 flex flex-col items-center gap-2 rounded-xl border p-3 transition-all ${
+                      className={`flex-1 flex flex-col items-center gap-2 rounded-xl border p-4 transition-all duration-300 ${
                         channel === ch
-                          ? 'border-primary bg-primary/5 text-primary shadow-sm'
-                          : 'border-border bg-white hover:border-border text-muted-foreground'
+                          ? 'border-primary bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]'
+                          : 'border-border/60 bg-white hover:border-border hover:bg-muted/30 text-muted-foreground'
                       }`}
                     >
                       {ch === 'chat' ? <MessageSquare className="w-5 h-5" strokeWidth={1.5} /> : ch === 'call' ? <Phone className="w-5 h-5" strokeWidth={1.5} /> : <MessagesSquare className="w-5 h-5" strokeWidth={1.5} />}
-                      <span className="text-[10px] font-bold uppercase tracking-wider capitalize">{ch}</span>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider capitalize ${channel === ch ? 'text-white' : 'text-muted-foreground'}`}>{ch}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-3">
-                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Difficulty Benchmark</Label>
-                <div className="flex gap-2">
+              <div className="space-y-4 p-5 rounded-2xl bg-muted/30 border border-border/40">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Difficulty Benchmark</Label>
+                  <span className="text-[10px] font-bold text-muted-foreground/40 italic">Determines AI logic complexity</span>
+                </div>
+                <div className="flex gap-3">
                   {(['Beginner', 'Intermediate', 'Advanced'] as Difficulty[]).map((d) => (
                     <button
                       key={d}
                       type="button"
                       onClick={() => setDifficulty(d)}
-                      className={`flex-1 rounded-xl border px-3 h-14 text-[10px] font-bold uppercase tracking-widest transition-all ${
+                      className={`flex-1 rounded-xl border px-4 h-16 text-[10px] font-bold uppercase tracking-widest transition-all duration-300 ${
                         difficulty === d
-                          ? d === 'Beginner' ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 
-                            d === 'Intermediate' ? 'border-amber-500 bg-amber-50 text-amber-700' : 
-                            'border-rose-500 bg-rose-50 text-rose-700'
-                          : 'border-border bg-white text-muted-foreground hover:bg-muted/50'
+                          ? d === 'Beginner' ? 'border-emerald-500 bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 scale-[1.02]' : 
+                            d === 'Intermediate' ? 'border-amber-500 bg-amber-500 text-white shadow-lg shadow-amber-500/20 scale-[1.02]' : 
+                            'border-rose-500 bg-rose-500 text-white shadow-lg shadow-rose-500/20 scale-[1.02]'
+                          : 'border-border/60 bg-white text-muted-foreground hover:bg-muted/30'
                       }`}
                     >
                       {d}
