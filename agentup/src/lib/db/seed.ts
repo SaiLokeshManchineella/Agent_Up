@@ -1,5 +1,4 @@
-import { db } from './index';
-import { cases } from './schema';
+import { db, cases } from './index';
 import { defaultCases } from '@/data/default-cases';
 import { v4 as uuid } from 'uuid';
 import { eq } from 'drizzle-orm';

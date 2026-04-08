@@ -1,5 +1,4 @@
-import { db, ensureDbReady } from '@/lib/db';
-import { cases } from '@/lib/db/schema';
+import { db, ensureDbReady, cases } from '@/lib/db';
 import { seedDefaultCases } from '@/lib/db/seed';
 import { v4 as uuid } from 'uuid';
 import { eq, and } from 'drizzle-orm';

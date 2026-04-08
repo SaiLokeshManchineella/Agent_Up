@@ -123,3 +123,10 @@ export const db = new Proxy({} as any, {
   },
 });
 
+// Dialect-agnostic schema exports
+export const { 
+  cases, 
+  sessions, 
+  sessionCases 
+} = isPostgres ? schema.pgSchema : schema.sqliteSchema;
+
