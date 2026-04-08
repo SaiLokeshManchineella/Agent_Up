@@ -13,21 +13,27 @@ graph TD
     User((Agent)) --> UI[Premium Next.js Frontend]
     UI --> Store[Zustand State Engine]
     
-    subgraph "Real-time Voice Pipeline"
-        STT[Deepgram STT] --> LLM[GPT-4o Intelligence]
-        LLM --> TTS[ElevenLabs/Cartesia TTS]
-        Audio[Audio Output] --> UI
+    subgraph "Advanced Voice Pipeline"
+        STT[Deepgram STT] --> Spec[Speculative Execution Engine]
+        Spec --> LLM[GPT-4o Cognitive Intelligence]
+        LLM --> Failover[Model Failover Handler]
+        Failover --> TTS[Cartesia Sonic / OpenAI Fallback]
+        TTS --> Audio[Low-Latency Audio Output]
+        Audio --> UI
+        
+        Turn[Semantic Turn Detector] -.-> STT
+        Turn -.-> Spec
     end
     
     UI --> API[Next.js API Routes]
     
-    subgraph "Hybrid Database Layer"
-        API --> Drizzle{Drizzle ORM}
-        Drizzle --> PG[(Vercel Postgres - Production)]
-        Drizzle --> SQLite[(SQLite - Local Dev)]
+    subgraph "Hybrid Database Layer (Drizzle)"
+        API --> DB_Orch[Dual-Driver Orchestrator]
+        DB_Orch --> PG[(Vercel Postgres - Prod)]
+        DB_Orch --> SQLite[(Local SQLite - Dev)]
     end
     
-    API --> Analysis[Behavioral Diagnostic Engine]
+    API --> Analysis[Diagnostic Engine]
     Analysis --> UI
 ```
 
