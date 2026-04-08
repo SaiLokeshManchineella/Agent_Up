@@ -14,6 +14,7 @@ interface TrainingStore {
   isLoading: boolean;
   error: string | null;
   chosenChannels: ('chat' | 'call')[];
+  wasTerminated: boolean;
 
   // Actions
   startSession: (cases: Case[]) => void;
@@ -29,6 +30,7 @@ interface TrainingStore {
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   setChosenChannel: (channel: 'chat' | 'call', index?: number) => void;
+  terminateSession: () => void;
   reset: () => void;
 }
 
@@ -45,6 +47,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => ({
   isLoading: false,
   error: null,
   chosenChannels: [],
+  wasTerminated: false,
 
   startSession: (cases) =>
     set({
@@ -63,6 +66,7 @@ export const useTrainingStore = create<TrainingStore>((set, get) => ({
       chosenChannels: cases.map((c) =>
         c.channel === 'both' ? 'chat' : (c.channel as 'chat' | 'call')
       ),
+      wasTerminated: false,
     }),
 
   setPhase: (phase) => set({ phase }),
@@ -163,6 +167,12 @@ export const useTrainingStore = create<TrainingStore>((set, get) => ({
       return { chosenChannels: channels };
     }),
 
+  terminateSession: () => set({ 
+    phase: 'scoring', 
+    wasTerminated: true,
+    isLoading: false 
+  }),
+
   reset: () =>
     set({
       phase: 'idle',
@@ -175,5 +185,6 @@ export const useTrainingStore = create<TrainingStore>((set, get) => ({
       isLoading: false,
       error: null,
       chosenChannels: [],
+      wasTerminated: false,
     }),
 }));

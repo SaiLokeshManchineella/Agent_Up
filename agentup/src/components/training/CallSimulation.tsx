@@ -18,11 +18,20 @@ export function CallSimulation({ caseData }: CallSimulationProps) {
     setLoading,
     conversations,
     currentCaseIndex,
+    terminateSession,
   } = useTrainingStore();
 
   const handleCallEnd = async (conversation: ConversationMessage[]) => {
     // Set final conversation history in store
     setConversation(currentCaseIndex, conversation);
+
+    // Calculate agent turns
+    const agentTurns = conversation.filter(m => m.role === 'agent').length;
+
+    if (agentTurns < maxTurns) {
+      terminateSession();
+      return;
+    }
 
     // Score the conversation
     setLoading(true);

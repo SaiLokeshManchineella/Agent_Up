@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, AlertCircle, ChevronRight, Activity, Target, Sparkles, Brain, Gauge, ChevronDown, ChevronUp } from 'lucide-react';
+import { CheckCircle2, AlertCircle, ChevronRight, Activity, Target, Sparkles, Brain, Gauge, ChevronDown, ChevronUp, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTrainingStore } from '@/lib/store/training-store';
 import type { ScoreResult } from '@/types';
 
 interface ScoreCardProps {
@@ -12,8 +13,35 @@ interface ScoreCardProps {
 }
 
 export function ScoreCard({ score, onContinue }: ScoreCardProps) {
+  const { wasTerminated } = useTrainingStore();
   const isHigh = score.totalScore >= 80;
   const [expandedIndices, setExpandedIndices] = useState<number[]>([]);
+
+  if (wasTerminated) {
+    return (
+      <div className="max-w-2xl mx-auto w-full py-20 px-4 text-center space-y-8 animate-in fade-in slide-in-from-bottom-6 duration-700">
+        <div className="w-20 h-20 bg-rose-50 border border-rose-100 rounded-3xl flex items-center justify-center mx-auto text-rose-600 shadow-xl shadow-rose-900/5">
+          <ShieldAlert className="w-10 h-10" />
+        </div>
+        <div className="space-y-4">
+          <h1 className="text-3xl font-black tracking-tight">Simulation Terminated</h1>
+          <p className="text-muted-foreground font-medium leading-relaxed max-w-sm mx-auto">
+            This training session was ended before reaching the required 5-turn baseline. 
+            Behavioral analysis requires a full conversation set to generate mastery scores.
+          </p>
+        </div>
+        <div className="pt-4">
+          <Button
+            size="lg"
+            onClick={onContinue}
+            className="h-14 px-12 rounded-2xl font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+          >
+            Acknowledge & Return
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const toggleExpand = (idx: number) => {
     setExpandedIndices(prev => 

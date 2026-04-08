@@ -25,6 +25,7 @@ export function ChatSimulation({ caseData }: ChatSimulationProps) {
     addScore,
     setLoading,
     isLoading,
+    terminateSession,
   } = useTrainingStore();
 
   const [input, setInput] = useState('');
@@ -164,7 +165,19 @@ export function ChatSimulation({ caseData }: ChatSimulationProps) {
           <h2 className="text-2xl font-bold tracking-tight">{caseData.title}</h2>
         </div>
 
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-6">
+           <Button 
+             variant="ghost" 
+             size="sm"
+             onClick={() => {
+               if (confirm('Are you sure you want to end this scenario early? No score will be generated.')) {
+                 terminateSession();
+               }
+             }}
+             className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-rose-600 hover:bg-rose-50 transition-colors"
+           >
+             End Session Early
+           </Button>
            <div className="flex flex-col items-end">
               <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Status</span>
               <span className="text-sm font-bold text-primary flex items-center gap-2">
