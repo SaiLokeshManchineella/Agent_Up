@@ -66,6 +66,18 @@ sequenceDiagram
 
 ---
 
+## 🛡️ Engineering Hardening & Reliability
+
+The platform was built with "Production-First" principles to ensure stability during high-stakes training sessions.
+
+- **Automatic LLM Failover**: The scoring engine includes a "Hot-Swap" logic. if the primary GPT-4o model hits a rate-limit or downtime, the system automatically fails over to **GPT-4o-mini** to ensure scoring is never interrupted.
+- **Backpressure Filler Injection**: To eliminate awkward conversational silences during high-latency periods, the pipeline dynamically injects humanized "thinkers" (e.g., "Mmhmm," "Let me see...") based on real-time backpressure monitoring.
+- **Acoustic Audio Monitoring**: The system monitors the agent's audio for **Signal-to-Noise Ratio (SNR)** and **Clipping**. It provides real-time warnings if the agent's microphone is too loud or the background is too noisy for accurate STT.
+- **7-State FSM Control**: The pipeline is managed by a strict Finite State Machine to prevent async race conditions (e.g., prevents the AI from talking while the user is still being processed).
+- **Server-Side STT Proxy**: For maximum security, API keys never leave the server. The client-side audio is proxied through a hardened backend stream, protecting your service infrastructure.
+
+---
+
 ## 🏗️ Architectural Excellence
 
 ### 1. Dual-Driver Database System (Cloud-Ready)
